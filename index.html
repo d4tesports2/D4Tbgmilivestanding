@@ -801,6 +801,10 @@ body.ready{
 
 const API_BASE_URL = "https://overlay-server-in1h.onrender.com/data";
 let lastFinished = null;
+let shownFinishedTeams = new Set();
+let popupQueue = [];
+let popupPlaying = false;
+let currentMatchNo = null;
 let lastRenderedSignature = "";
 let lastValidOverlayLayout = null;
 const defaultOverlayLayout = {
@@ -1270,7 +1274,7 @@ function showPopup(team,kills,aliveTeams){
         logoFallback(this);
     };
     popupLogo.src = variants[0];
-    // ðŸ”¥ NEW: FINISH POSITION ADD
+
     let finishPos = parseInt(aliveTeams || 0, 10) + 1;
     if(Number.isFinite(finishPos)){
         document.getElementById("popupTeam").innerText = "#" + finishPos + " - " + team;
@@ -1282,10 +1286,26 @@ function showPopup(team,kills,aliveTeams){
         banner.classList.remove("show");
     },6000);
 }
-function hasRenderableData(data){
-    return data && typeof data === "object" && Array.isArray(data.teams);
+
+function playNextPopup(){
+    if(popupPlaying) return;
+
+    let item = popupQueue.shift();
+    if(!item) return;
+
+    popupPlaying = true;
+    showPopup(item.team, item.kills, item.aliveTeams);
+
+    setTimeout(()=>{
+        popupPlaying = false;
+        playNextPopup();
+    }, 6800);
 }
 
+function queuePopup(team, kills, aliveTeams){
+    popupQueue.push({ team, kills, aliveTeams });
+    playNextPopup();
+}
 function update(data){
     if(!hasRenderableData(data)){
         document.body.classList.add("ready");
@@ -1353,14 +1373,28 @@ let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout);
     applyTableColumns(layout);
     animateTableRows(previousPositions, layout.animation_style);
 
-    let finishedTeam = teams.find(t=>t.finished);
+    let matchNo = data.match_no || 1;
 
-    if(finishedTeam && lastFinished!==finishedTeam.team){
-        lastFinished = finishedTeam.team;
+if(currentMatchNo !== matchNo){
+    currentMatchNo = matchNo;
+    shownFinishedTeams.clear();
+    popupQueue = [];
+    popupPlaying = false;
+    lastFinished = null;
+}
 
-        showPopup(finishedTeam.team, finishedTeam.kills, data.alive_teams);
+teams.forEach(t=>{
+    if(!t.finished) return;
 
-        let row = document.getElementById("team-"+rowKey(finishedTeam.team));
+    let key = matchNo + "_" + rowKey(t.team);
+
+    if(!shownFinishedTeams.has(key)){
+        shownFinishedTeams.add(key);
+        lastFinished = t.team;
+
+        queuePopup(t.team, t.kills, data.alive_teams);
+
+        let row = document.getElementById("team-"+rowKey(t.team));
 
         if(row){
             row.classList.add("flash");
@@ -1370,6 +1404,7 @@ let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout);
             },300);
         }
     }
+});
 
     let topHTML="";
     if(data.show_top5){
