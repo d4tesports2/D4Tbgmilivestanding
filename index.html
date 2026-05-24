@@ -1261,8 +1261,15 @@ function showPopup(team,kills,aliveTeams){
 
     document.getElementById("popupTeam").innerText = team;
     document.getElementById("popupKill").innerText = kills + " FINISHES";
-    document.getElementById("popupLogo").src = getLogo(team);
 
+    let popupLogo = document.getElementById("popupLogo");
+    let variants = getLogoVariants(team);
+    popupLogo.dataset.index = "0";
+    popupLogo.dataset.variants = JSON.stringify(variants);
+    popupLogo.onerror = function(){
+        logoFallback(this);
+    };
+    popupLogo.src = variants[0];
     // ðŸ”¥ NEW: FINISH POSITION ADD
     let finishPos = parseInt(aliveTeams || 0, 10) + 1;
     if(Number.isFinite(finishPos)){
