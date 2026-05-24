@@ -1306,6 +1306,9 @@ function queuePopup(team, kills, aliveTeams){
     popupQueue.push({ team, kills, aliveTeams });
     playNextPopup();
 }
+function hasRenderableData(data){
+    return data && typeof data === "object" && Array.isArray(data.teams);
+}
 function update(data){
     if(!hasRenderableData(data)){
         document.body.classList.add("ready");
