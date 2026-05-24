@@ -1204,49 +1204,10 @@ function fitMapText(){
     }
 }
 
-function cleanTeamName(team){
-    return String(team || "default").trim();
-}
-
 function getLogo(team){
-    let name = cleanTeamName(team);
-
-    // First try lowercase no-space, old system
-    return "logos/" + name.toLowerCase().replace(/\s/g, "") + ".png";
+    return "logos/"+String(team || "default").toLowerCase().replace(/\\s/g,"")+".png";
 }
 
-function getLogoVariants(team){
-    let name = cleanTeamName(team);
-    let noSpace = name.replace(/\s/g, "");
-    let lowerNoSpace = name.toLowerCase().replace(/\s/g, "");
-
-    return [
-        "logos/" + lowerNoSpace + ".png",
-        "logos/" + noSpace + ".png",
-        "logos/" + name + ".png",
-        "logos/" + name.toLowerCase() + ".png",
-        "logos/" + name.toUpperCase() + ".png",
-        "logos/default.png"
-    ];
-}
-
-function logoFallback(img){
-    let variants = JSON.parse(img.dataset.variants || "[]");
-    let index = parseInt(img.dataset.index || "0", 10) + 1;
-
-    if(index < variants.length){
-        img.dataset.index = index;
-        img.src = variants[index];
-    }else{
-        img.onerror = null;
-        img.src = "logos/default.png";
-    }
-}
-
-function logoImgTag(className, team){
-    let variants = getLogoVariants(team);
-    return `<img class="${className}" src="${variants[0]}" data-index="0" data-variants='${JSON.stringify(variants)}' onerror="logoFallback(this)">`;
-}
 function aliveBars(n){
     let h="";
     for(let i=0;i<4;i++){
@@ -1330,7 +1291,7 @@ let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout);
         <div class="row ${t.finished ? 'finished' : 'alive'}" id="team-${key}" data-team-key="${key}">
             <div data-col="rank">${i+1}</div>
             <div data-col="team" class="team">
-                ${logoImgTag("logo", t.team)}
+                <img class="logo" src="${getLogo(t.team)}">
                 ${t.team}
             </div>
             <div data-col="chicken">${t.chicken||0}</div>
@@ -1369,7 +1330,7 @@ let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout);
         (data.top_players||[]).forEach((p,i)=>{
             topHTML+=`
             <div class="top-card">
-                ${logoImgTag("top-logo", p.team)}
+                <img class="top-logo" src="${getLogo(p.team)}">
                 <div class="top-text">
                     #${i+1}<br>
                     ${p.team}<br>
