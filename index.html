@@ -1400,12 +1400,12 @@ teams.forEach(t=>{
         let row = document.getElementById("team-"+rowKey(t.team));
 
         if(row){
-            row.classList.add("flash");
+    row.classList.add("flash");
 
-            setTimeout(()=>{
-                row.classList.add("out");
-            },300);
-        }
+    setTimeout(()=>{
+        row.classList.remove("flash");
+    },700);
+}
     }
 });
 
