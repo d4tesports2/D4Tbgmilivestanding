@@ -17,6 +17,8 @@
     --top5-card-bg: linear-gradient(90deg,rgba(57, 0, 117, 1) 0%, rgba(89, 0, 153, 1) 52%, rgba(75, 0, 130, 1) 100%);
     --popup-bg: linear-gradient(90deg,#7c3aed,#9333ea);
     --map-text-color:#ffffff;
+    --style-accent-color:#22d3ee;
+    --style-accent-soft:rgba(34,211,238,0.18);
     --table-width:320px;
     --table-row-height:34px;
     --table-row-font-size:13px;
@@ -86,12 +88,12 @@ body.ready{
 }
 
 .top5[data-top5-style="neon"] .top-card{
-    border:1px solid #22d3ee;
+    border:1px solid var(--style-accent-color);
     border-radius:12px;
     clip-path:none;
-    color:#67e8f9;
+    color:var(--style-accent-color);
     backdrop-filter:blur(10px);
-    box-shadow:0 18px 48px rgba(0,0,0,0.75), 0 0 18px #22d3ee, inset 0 0 18px rgba(34,211,238,0.18);
+    box-shadow:0 18px 48px rgba(0,0,0,0.75), 0 0 18px var(--style-accent-color), inset 0 0 18px var(--style-accent-soft);
 }
 
 .top5[data-top5-style="compact"]{
@@ -130,7 +132,7 @@ body.ready{
 
 .top5[data-top5-style="curve_dark"] .top-card{
     border-left:2px solid rgba(255,255,255,0.45);
-    border-right:7px solid rgba(125,211,252,0.65);
+    border-right:7px solid var(--style-accent-color);
     border-top:0;
     border-bottom:0;
     border-radius:0;
@@ -233,11 +235,11 @@ body.ready{
 }
 
 #finishBanner[data-popup-style="neon"]{
-    border:1px solid #22d3ee;
+    border:1px solid var(--style-accent-color);
     border-radius:12px;
     clip-path:none;
     backdrop-filter:blur(10px);
-    box-shadow:0 0 18px #22d3ee, inset 0 0 18px rgba(34,211,238,0.18), 0 10px 40px rgba(0,0,0,0.8);
+    box-shadow:0 0 18px var(--style-accent-color), inset 0 0 18px var(--style-accent-soft), 0 10px 40px rgba(0,0,0,0.8);
 }
 
 #finishBanner[data-popup-style="compact"] .left-box img{
@@ -272,7 +274,7 @@ body.ready{
 
 #finishBanner[data-popup-style="curve_dark"]{
     border-left:2px solid rgba(255,255,255,0.45);
-    border-right:9px solid rgba(125,211,252,0.65);
+    border-right:9px solid var(--style-accent-color);
     border-top:0;
     border-bottom:0;
     clip-path:polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%);
@@ -588,18 +590,18 @@ body.ready{
 }
 
 .container[data-table-style="neon"]{
-    border:1px solid #22d3ee;
+    border:1px solid var(--style-accent-color);
     border-radius:12px;
     backdrop-filter:blur(10px);
-    box-shadow:0 18px 48px rgba(0,0,0,0.75), 0 0 18px #22d3ee, inset 0 0 18px rgba(34,211,238,0.18);
+    box-shadow:0 18px 48px rgba(0,0,0,0.75), 0 0 18px var(--style-accent-color), inset 0 0 18px var(--style-accent-soft);
 }
 .container[data-table-style="neon"] #matchBar,
 .container[data-table-style="neon"] .header{
     background:var(--table-header-bg);
-    color:#67e8f9;
+    color:var(--style-accent-color);
 }
 .container[data-table-style="neon"] .row{
-    border-bottom:1px solid rgba(34,211,238,0.18);
+    border-bottom:1px solid var(--style-accent-soft);
 }
 
 .container[data-table-style="compact"]{
@@ -675,7 +677,7 @@ body.ready{
     background:var(--alive-team-bg);
     color:var(--table-font-color);
     border-left:2px solid rgba(255,255,255,0.45);
-    border-right:7px solid rgba(125,211,252,0.65);
+    border-right:7px solid var(--style-accent-color);
     clip-path:polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%);
     box-shadow:0 3px 0 rgba(167,243,208,0.25);
 }
@@ -800,8 +802,9 @@ body.ready{
 <script>
 
 const API_BASE_URL = "https://overlay-server-in1h.onrender.com/data";
+const FINISH_POPUP_STORAGE_KEY = "d4t_finish_popups_v1";
 let lastFinished = null;
-let shownFinishedTeams = new Set();
+let shownFinishedTeams = loadShownFinishedTeams();
 let popupQueue = [];
 let popupPlaying = false;
 let currentMatchNo = null;
@@ -839,6 +842,8 @@ const defaultOverlayLayout = {
     map_text_color: "#ffffff",
     map_text_size: 18,
     map_text_height: 40,
+    match_text_size: 18,
+    style_color: "#22d3ee",
     map_text_align: "left",
     map_text_valign: "top",
     match_text_align: "left",
@@ -905,6 +910,8 @@ function normalizeLayout(layout){
     let mapTextColor = String(layout.map_text_color || defaultOverlayLayout.map_text_color);
     let mapTextSize = parseInt(layout.map_text_size || defaultOverlayLayout.map_text_size, 10);
     let mapTextHeight = parseInt(layout.map_text_height || defaultOverlayLayout.map_text_height, 10);
+    let matchTextSize = parseInt(layout.match_text_size || defaultOverlayLayout.match_text_size, 10);
+    let styleColor = String(layout.style_color || defaultOverlayLayout.style_color);
     let mapTextAlign = String(layout.map_text_align || defaultOverlayLayout.map_text_align).toLowerCase();
     let mapTextValign = String(layout.map_text_valign || defaultOverlayLayout.map_text_valign).toLowerCase();
     let matchTextAlign = String(layout.match_text_align || defaultOverlayLayout.match_text_align).toLowerCase();
@@ -938,11 +945,13 @@ function normalizeLayout(layout){
     if(Number.isNaN(popupScale)) popupScale = defaultOverlayLayout.popup_scale;
     if(Number.isNaN(mapTextSize)) mapTextSize = defaultOverlayLayout.map_text_size;
     if(Number.isNaN(mapTextHeight)) mapTextHeight = defaultOverlayLayout.map_text_height;
+    if(Number.isNaN(matchTextSize)) matchTextSize = defaultOverlayLayout.match_text_size;
     tableWidth = Math.max(240, Math.min(560, tableWidth));
     tableRowHeight = Math.max(24, Math.min(62, tableRowHeight));
     top5Scale = Math.max(50, Math.min(180, top5Scale));
     popupScale = Math.max(50, Math.min(180, popupScale));
     mapTextSize = Math.max(8, Math.min(64, mapTextSize));
+    matchTextSize = Math.max(8, Math.min(64, matchTextSize));
     mapTextHeight = Math.max(40, Math.min(180, mapTextHeight));
     if(!["left", "center", "right"].includes(mapTextAlign)) mapTextAlign = defaultOverlayLayout.map_text_align;
     if(!["top", "middle", "bottom"].includes(mapTextValign)) mapTextValign = defaultOverlayLayout.map_text_valign;
@@ -981,6 +990,8 @@ function normalizeLayout(layout){
         map_text_color: mapTextColor,
         map_text_size: mapTextSize,
         map_text_height: mapTextHeight,
+        match_text_size: matchTextSize,
+        style_color: styleColor,
         map_text_align: mapTextAlign,
         map_text_valign: mapTextValign,
         match_text_align: matchTextAlign,
@@ -1015,10 +1026,10 @@ function applyOverlayLayout(layout){
         table.style.left = "50%";
         table.style.transform = `translate(calc(-50% + ${clean.offset_x}px), ${clean.offset_y}px)`;
     }else{
-        table.style[clean.table_x] = "20px";
+        let tableEdgeOffset = 20 - ((clean.table_width - defaultOverlayLayout.table_width) / 2);
+        table.style[clean.table_x] = tableEdgeOffset + "px";
         table.style.transform = `translate(${clean.offset_x}px, ${clean.offset_y}px)`;
     }
-    table.style[clean.table_y] = "10px";
     table.style.color = clean.font_color || defaultOverlayLayout.font_color;
     table.style.width = clean.table_width + "px";
 
@@ -1027,6 +1038,15 @@ function applyOverlayLayout(layout){
     let logoSize = Math.max(14, Math.min(30, clean.table_row_height - 14));
     let barHeight = Math.max(10, Math.min(28, clean.table_row_height - 18));
     let padX = Math.max(6, Math.min(12, Math.round(clean.table_row_height * 0.24)));
+    let headerScale = Math.max(0.72, Math.min(1.55, ((clean.table_width / defaultOverlayLayout.table_width) + (clean.table_row_height / defaultOverlayLayout.table_row_height)) / 2));
+    let mapImageWidth = Math.max(92, Math.min(230, Math.round(130 * headerScale)));
+    let matchTextWidth = Math.max(54, Math.min(112, Math.round(74 * headerScale)));
+    let matchBarHeight = Math.max(46, clean.map_text_height + 7, Math.round(44 * headerScale));
+    let currentRowCount = Math.max(1, document.querySelectorAll("#teams .row").length || 0);
+    let defaultMatchBarHeight = Math.max(46, defaultOverlayLayout.map_text_height + 7, 44);
+    let tableHeightDelta = ((clean.table_row_height - defaultOverlayLayout.table_row_height) * (currentRowCount + 1)) + (matchBarHeight - defaultMatchBarHeight);
+    let tableVerticalEdgeOffset = 10 - (tableHeightDelta / 2);
+    table.style[clean.table_y] = tableVerticalEdgeOffset + "px";
     document.documentElement.style.setProperty("--table-width", clean.table_width + "px");
     document.documentElement.style.setProperty("--table-row-height", clean.table_row_height + "px");
     document.documentElement.style.setProperty("--table-row-font-size", rowFontSize + "px");
@@ -1062,14 +1082,18 @@ function applyOverlayLayout(layout){
     document.documentElement.style.setProperty("--top5-card-bg", clean.top5_color || defaultOverlayLayout.top5_color);
     document.documentElement.style.setProperty("--popup-bg", clean.popup_color || defaultOverlayLayout.popup_color);
     document.documentElement.style.setProperty("--map-text-color", clean.map_text_color || defaultOverlayLayout.map_text_color);
+    document.documentElement.style.setProperty("--style-accent-color", clean.style_color || defaultOverlayLayout.style_color);
+    document.documentElement.style.setProperty("--style-accent-soft", `color-mix(in srgb, ${clean.style_color || defaultOverlayLayout.style_color} 18%, transparent)`);
     if(matchBar){
         matchBar.style.background = clean.header_color || defaultOverlayLayout.header_color;
-        matchBar.style.minHeight = Math.max(46, clean.map_text_height + 7) + "px";
+        matchBar.dataset.baseHeight = matchBarHeight;
+        matchBar.style.minHeight = matchBarHeight + "px";
     }
     if(header) header.style.background = clean.header_color || defaultOverlayLayout.header_color;
     if(mapImage){
         mapImage.src = clean.map_image || defaultOverlayLayout.map_image;
         mapImage.alt = clean.map_name || defaultOverlayLayout.map_name;
+        mapImage.style.width = mapImageWidth + "px";
     }
     if(mapText){
         let verticalAlign = clean.map_text_valign === "middle" ? "center" : (clean.map_text_valign === "bottom" ? "end" : "start");
@@ -1085,9 +1109,12 @@ function applyOverlayLayout(layout){
     }
     if(matchText){
         let matchVerticalAlign = clean.match_text_valign === "middle" ? "center" : (clean.match_text_valign === "bottom" ? "end" : "start");
+        matchText.style.flexBasis = matchTextWidth + "px";
+        matchText.style.minWidth = matchTextWidth + "px";
         matchText.style.textAlign = clean.match_text_align;
         matchText.style.alignContent = matchVerticalAlign;
         matchText.style.height = clean.map_text_height + "px";
+        matchText.style.setProperty("font-size", clean.match_text_size + "px", "important");
     }
     console.log("Overlay layout:", clean);
     table.dataset.animation = clean.animation_style;
@@ -1123,6 +1150,29 @@ function applyTableColumns(layout){
 
 function rowKey(team){
     return String(team || "").replace(/[^a-zA-Z0-9_-]/g, "_");
+}
+
+function loadShownFinishedTeams(){
+    try{
+        return new Set(JSON.parse(localStorage.getItem(FINISH_POPUP_STORAGE_KEY) || "[]"));
+    }catch(err){
+        return new Set();
+    }
+}
+
+function saveShownFinishedTeams(){
+    try{
+        localStorage.setItem(FINISH_POPUP_STORAGE_KEY, JSON.stringify([...shownFinishedTeams]));
+    }catch(err){}
+}
+
+function finishPopupKey(matchNo, team){
+    return String(matchNo || 1) + "_" + rowKey(team);
+}
+
+function markFinishPopupShown(key){
+    shownFinishedTeams.add(key);
+    saveShownFinishedTeams();
 }
 
 function getRowPositions(){
@@ -1194,7 +1244,8 @@ function fitMapText(){
     boxHeight = Math.max(40, Math.min(180, boxHeight));
     let matchBar = document.getElementById("matchBar");
     if(matchBar){
-        matchBar.style.minHeight = Math.max(46, boxHeight + 7) + "px";
+        let baseHeight = parseInt(matchBar.dataset.baseHeight || "0", 10);
+        matchBar.style.minHeight = Math.max(46, boxHeight + 7, Number.isNaN(baseHeight) ? 0 : baseHeight) + "px";
     }
     text.style.height = boxHeight + "px";
     text.style.maxHeight = boxHeight + "px";
@@ -1322,6 +1373,7 @@ function update(data){
         teams: data.teams || [],
         top_players: data.top_players || [],
         show_top5: !!data.show_top5,
+        show_popup: data.show_popup !== false,
         overlay_layout: data.overlay_layout || {}
     });
     if(signature === lastRenderedSignature) return;
@@ -1373,6 +1425,7 @@ let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout);
     });
 
     document.getElementById("teams").innerHTML = html;
+    layout = applyOverlayLayout(layout);
     applyTableColumns(layout);
     animateTableRows(previousPositions, layout.animation_style);
 
@@ -1380,19 +1433,30 @@ let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout);
 
 if(currentMatchNo !== matchNo){
     currentMatchNo = matchNo;
-    shownFinishedTeams.clear();
     popupQueue = [];
     popupPlaying = false;
     lastFinished = null;
 }
 
-teams.forEach(t=>{
+let popupEnabled = data.show_popup !== false;
+if(!popupEnabled){
+    popupQueue = [];
+    popupPlaying = false;
+    document.getElementById("finishBanner").classList.remove("show");
+    teams.forEach(t=>{
+        if(t.finished){
+            markFinishPopupShown(finishPopupKey(matchNo, t.team));
+        }
+    });
+}
+
+if(popupEnabled) teams.forEach(t=>{
     if(!t.finished) return;
 
-    let key = matchNo + "_" + rowKey(t.team);
+    let key = finishPopupKey(matchNo, t.team);
 
     if(!shownFinishedTeams.has(key)){
-        shownFinishedTeams.add(key);
+        markFinishPopupShown(key);
         lastFinished = t.team;
 
         queuePopup(t.team, t.kills, data.alive_teams);
