@@ -801,7 +801,13 @@ body.ready{
 
 <script>
 
-const API_BASE_URL = "https://overlay-server-in1h.onrender.com/data";
+const params = new URLSearchParams(window.location.search);
+const KEY_HASH = params.get("key");
+
+const SERVER_URL = "https://overlay-server-in1h.onrender.com";
+const API_BASE_URL = KEY_HASH
+    ? `${SERVER_URL}/data/${KEY_HASH}`
+    : `${SERVER_URL}/data`;
 const FINISH_POPUP_STORAGE_KEY = "d4t_finish_popups_v1";
 let lastFinished = null;
 let shownFinishedTeams = loadShownFinishedTeams();
@@ -1494,13 +1500,19 @@ if(popupEnabled) teams.forEach(t=>{
 }
 
 function fetchData(){
-    fetch(API_BASE_URL + "?nocache=" + Date.now(), {
-    cache: "no-store",
-    headers: {
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache"
+    if(!KEY_HASH){
+        console.log("Missing customer key in overlay URL. Use ?key=YOUR_HASH");
+        document.body.classList.add("ready");
+        return;
     }
-})
+
+    fetch(API_BASE_URL + "?nocache=" + Date.now(), {
+        cache: "no-store",
+        headers: {
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache"
+        }
+    })
     .then(r=>{
         if(!r.ok) throw new Error("HTTP " + r.status);
         return r.json();
@@ -1512,7 +1524,7 @@ function fetchData(){
     });
 }
 
-setInterval(fetchData,2000);
+setInterval(fetchData, 2000);
 fetchData();
 
 </script>
