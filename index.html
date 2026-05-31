@@ -1269,11 +1269,12 @@ function cleanTeamName(team){
     return String(team || "default").trim();
 }
 
-function getLogo(team){
-    let name = cleanTeamName(team);
+function logoPath(name, ext){
+    return "logos/" + encodeURIComponent(name).replace(/%2F/gi, "") + "." + ext;
+}
 
-    // First try lowercase no-space, old system
-    return "logos/" + name.toLowerCase().replace(/\s/g, "") + ".png";
+function getLogo(team){
+    return getLogoVariants(team)[0];
 }
 
 function getLogoVariants(team){
@@ -1282,13 +1283,17 @@ function getLogoVariants(team){
     let lowerNoSpace = name.toLowerCase().replace(/\s/g, "");
 
     return [
-        "logos/" + lowerNoSpace + ".png",
-        "logos/" + noSpace + ".png",
-        "logos/" + name + ".png",
-        "logos/" + name.toLowerCase() + ".png",
-        "logos/" + name.toUpperCase() + ".png",
+        logoPath(name, "png"),
+        logoPath(name, "PNG"),
+        logoPath(name, "jpg"),
+        logoPath(name, "jpeg"),
+        logoPath(name, "webp"),
+        logoPath(noSpace, "png"),
+        logoPath(lowerNoSpace, "png"),
+        logoPath(name.toLowerCase(), "png"),
+        logoPath(name.toUpperCase(), "png"),
         "logos/default.png"
-    ];
+    ].filter((value, index, arr)=>value && arr.indexOf(value) === index);
 }
 
 function logoFallback(img){
