@@ -17,6 +17,8 @@
     --top5-card-bg: linear-gradient(90deg,rgba(57, 0, 117, 1) 0%, rgba(89, 0, 153, 1) 52%, rgba(75, 0, 130, 1) 100%);
     --popup-bg: linear-gradient(90deg,#7c3aed,#9333ea);
     --map-text-color:#ffffff;
+    --popup-text-color:#ffffff;
+    --top5-text-color:#ffffff;
     --style-accent-color:#22d3ee;
     --style-accent-soft:rgba(34,211,238,0.18);
     --table-width:320px;
@@ -42,6 +44,68 @@ body{
 
 body.ready{
     opacity:1;
+}
+
+.win-chance{
+    position:absolute;
+    top:52px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:28px;
+    align-items:flex-start;
+    justify-content:center;
+    z-index:8;
+    pointer-events:none;
+}
+
+.win-card{
+    width:185px;
+    background:#0b2f34;
+    border:1px solid rgba(0,255,220,0.45);
+    box-shadow:0 10px 28px rgba(0,0,0,0.55);
+}
+
+.win-card-main{
+    display:grid;
+    grid-template-columns:64px 1fr;
+    align-items:center;
+    min-height:70px;
+    background:rgba(6,35,39,0.94);
+}
+
+.win-logo{
+    width:54px;
+    height:54px;
+    object-fit:contain;
+    margin:0 auto;
+}
+
+.win-bars{
+    display:flex;
+    justify-content:center;
+    gap:7px;
+}
+
+.win-card .bar{
+    width:13px;
+    height:48px;
+}
+
+.win-label{
+    background:linear-gradient(90deg,#069f9b,#18d3cc);
+    color:#eaffff;
+    text-align:center;
+    font-size:24px;
+    font-weight:900;
+    line-height:1;
+    padding:8px 4px 7px;
+    text-shadow:0 2px 2px rgba(0,0,0,0.45);
+    white-space:nowrap;
+}
+
+.win-chance:empty{
+    display:none;
 }
 
 /* ================= TOP 5 ================= */
@@ -79,6 +143,7 @@ body.ready{
 .top-text{
     line-height:1.3;
     font-size:14px;
+    color:var(--top5-text-color);
 }
 
 .top5[data-top5-style="bgmi"] .top-card{
@@ -157,6 +222,21 @@ body.ready{
     border-radius:999px;
 }
 
+.top5[data-top5-style="scoreboard"] .top-card{
+    background:var(--alive-team-bg);
+    border:2px solid #071e22;
+    border-radius:0;
+    clip-path:none;
+    color:var(--table-font-color);
+    box-shadow:0 10px 28px rgba(0,0,0,0.65);
+}
+
+.top5[data-top5-style="scoreboard"] .top-logo{
+    border:0;
+    border-radius:0;
+    object-fit:contain;
+}
+
 .top5[data-top5-animation="pop"] .top-card{
     animation:top5Pop 0.38s ease;
 }
@@ -222,6 +302,7 @@ body.ready{
 
     opacity:0;
     transition:0.35s ease;
+    color:var(--popup-text-color);
 }
 
 #finishBanner.show{
@@ -287,6 +368,15 @@ body.ready{
     background:rgba(30,41,59,0.84);
     box-shadow:0 12px 28px rgba(0,0,0,0.7);
     overflow:hidden;
+}
+
+#finishBanner[data-popup-style="scoreboard"]{
+    background:var(--table-header-bg);
+    border:2px solid #071e22;
+    border-radius:0;
+    clip-path:none;
+    color:var(--popup-text-color);
+    box-shadow:0 10px 28px rgba(0,0,0,0.65);
 }
 
 #finishBanner[data-popup-animation="none"]{
@@ -731,6 +821,93 @@ body.ready{
     border-radius:999px;
 }
 
+.container[data-table-style="scoreboard"]{
+    background:#f7f7f2;
+    border:2px solid #071e22;
+    border-radius:0;
+    overflow:hidden;
+    box-shadow:0 10px 28px rgba(0,0,0,0.7);
+    color:var(--table-font-color);
+}
+.container[data-table-style="scoreboard"] #matchBar{
+    background:var(--table-header-bg);
+    color:#b8fff1;
+    min-height:0;
+    padding:0;
+    clip-path:none;
+    border-bottom:1px solid #071e22;
+}
+.container[data-table-style="scoreboard"] #matchText,
+.container[data-table-style="scoreboard"] #mapText{
+    height:34px !important;
+    min-height:34px;
+    align-content:center;
+    padding:2px 8px;
+    text-transform:uppercase;
+}
+.container[data-table-style="scoreboard"] #mapImage{
+    display:none;
+}
+.container[data-table-style="scoreboard"] .header{
+    background:var(--table-header-bg);
+    color:#b8fff1;
+    border:0;
+    text-transform:uppercase;
+    font-weight:900;
+}
+.container[data-table-style="scoreboard"] .row{
+    background:var(--alive-team-bg);
+    color:var(--table-font-color);
+    border-bottom:1px solid #c5c9c2;
+    font-weight:900;
+    text-transform:uppercase;
+}
+.container[data-table-style="scoreboard"] .row:nth-child(even){
+    background:var(--alive-team-bg);
+    filter:brightness(0.92);
+}
+.container[data-table-style="scoreboard"] .row.finished{
+    background:var(--finished-team-bg) !important;
+    opacity:0.9;
+}
+.container[data-table-style="scoreboard"] [data-col="rank"]{
+    color:var(--table-font-color);
+}
+.container[data-table-style="scoreboard"] [data-col="status"],
+.container[data-table-style="scoreboard"] [data-col="chicken"],
+.container[data-table-style="scoreboard"] [data-col="kills"],
+.container[data-table-style="scoreboard"] [data-col="total"]{
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--style-accent-color);
+    color:#ffffff;
+}
+.container[data-table-style="scoreboard"] [data-col="status"]{
+    justify-content:flex-end;
+    padding-right:5px;
+}
+.container[data-table-style="scoreboard"] .team{
+    color:var(--table-font-color);
+    gap:5px;
+}
+.container[data-table-style="scoreboard"] .logo{
+    border:0;
+    border-radius:0;
+    object-fit:contain;
+}
+.container[data-table-style="scoreboard"] .bar{
+    width:5px;
+    background:var(--status-bar-finished);
+}
+.container[data-table-style="scoreboard"] .bar.active{
+    background:var(--status-bar-active);
+}
+.container[data-table-style="scoreboard"] .row.finished .bar{
+    background:var(--status-bar-finished);
+}
+
 .row.anim-pop{
     animation:rowPop 0.38s ease;
 }
@@ -757,6 +934,7 @@ body.ready{
 
 <body>
 
+<div class="win-chance" id="winChance"></div>
 <div class="top5" id="top5"></div>
 
 <!-- POPUP -->
@@ -801,11 +979,32 @@ body.ready{
 
 <script>
 
-const params = new URLSearchParams(window.location.search);
-const KEY_HASH = params.get("key");
+const DEFAULT_KEY_HASH = "4616145c6587514d9ac9e65c39beaca76e40baf7d182dd7d5de92dbfea304676";
+
+function readOverlayKey(){
+    let searchParams = new URLSearchParams(window.location.search || "");
+    let key = searchParams.get("key");
+    if(key) return key.trim();
+
+    let hash = (window.location.hash || "").replace(/^#/, "").trim();
+    if(hash){
+        let hashParams = new URLSearchParams(hash.replace(/^\?/, ""));
+        key = hashParams.get("key") || hashParams.get("customer") || hashParams.get("customer_key");
+        if(key) return key.trim();
+        if(/^[a-f0-9]{32,128}$/i.test(hash)) return hash;
+    }
+
+    return DEFAULT_KEY_HASH;
+}
+
+const KEY_HASH = readOverlayKey();
 
 const SERVER_URL = "https://overlay-server-in1h.onrender.com";
-const API_BASE_URL = KEY_HASH
+const IS_FILE_OVERLAY = window.location.protocol === "file:";
+const IS_LOCAL_OVERLAY = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+const API_BASE_URL = IS_LOCAL_OVERLAY
+    ? "live.json"
+    : KEY_HASH
     ? `${SERVER_URL}/data/${KEY_HASH}`
     : `${SERVER_URL}/data`;
 const FINISH_POPUP_STORAGE_KEY = "d4t_finish_popups_v1";
@@ -849,11 +1048,15 @@ const defaultOverlayLayout = {
     map_text_size: 18,
     map_text_height: 40,
     match_text_size: 18,
+    popup_text_color: "#ffffff",
+    top5_text_color: "#ffffff",
     style_color: "#22d3ee",
     map_text_align: "left",
     map_text_valign: "top",
     match_text_align: "left",
     match_text_valign: "top",
+    show_header: true,
+    show_win_chance: true,
     show_rank: true,
     show_team: true,
     show_chicken: true,
@@ -917,11 +1120,15 @@ function normalizeLayout(layout){
     let mapTextSize = parseInt(layout.map_text_size || defaultOverlayLayout.map_text_size, 10);
     let mapTextHeight = parseInt(layout.map_text_height || defaultOverlayLayout.map_text_height, 10);
     let matchTextSize = parseInt(layout.match_text_size || defaultOverlayLayout.match_text_size, 10);
+    let popupTextColor = String(layout.popup_text_color || defaultOverlayLayout.popup_text_color);
+    let top5TextColor = String(layout.top5_text_color || defaultOverlayLayout.top5_text_color);
     let styleColor = String(layout.style_color || defaultOverlayLayout.style_color);
     let mapTextAlign = String(layout.map_text_align || defaultOverlayLayout.map_text_align).toLowerCase();
     let mapTextValign = String(layout.map_text_valign || defaultOverlayLayout.map_text_valign).toLowerCase();
     let matchTextAlign = String(layout.match_text_align || defaultOverlayLayout.match_text_align).toLowerCase();
     let matchTextValign = String(layout.match_text_valign || defaultOverlayLayout.match_text_valign).toLowerCase();
+    let showHeader = layoutBool(layout, "show_header");
+    let showWinChance = layoutBool(layout, "show_win_chance");
     let showRank = layoutBool(layout, "show_rank");
     let showTeam = layoutBool(layout, "show_team");
     let showChicken = layoutBool(layout, "show_chicken");
@@ -938,9 +1145,9 @@ function normalizeLayout(layout){
     if(!["slide", "smooth", "pop", "slide_io", "fade_io", "none"].includes(animationStyle)) animationStyle = defaultOverlayLayout.animation_style;
     if(!["slide", "smooth", "pop", "slide_io", "fade_io", "none"].includes(top5AnimationStyle)) top5AnimationStyle = defaultOverlayLayout.top5_animation_style;
     if(!["slide", "smooth", "pop", "slide_io", "fade_io", "none"].includes(popupAnimationStyle)) popupAnimationStyle = defaultOverlayLayout.popup_animation_style;
-    if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light"].includes(tableStyle)) tableStyle = defaultOverlayLayout.table_style;
-    if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light"].includes(top5Style)) top5Style = defaultOverlayLayout.top5_style;
-    if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light"].includes(popupStyle)) popupStyle = defaultOverlayLayout.popup_style;
+    if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(tableStyle)) tableStyle = defaultOverlayLayout.table_style;
+    if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(top5Style)) top5Style = defaultOverlayLayout.top5_style;
+    if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(popupStyle)) popupStyle = defaultOverlayLayout.popup_style;
     if(Number.isNaN(offsetX)) offsetX = defaultOverlayLayout.offset_x;
     if(Number.isNaN(offsetY)) offsetY = defaultOverlayLayout.offset_y;
     if(Number.isNaN(top5OffsetX)) top5OffsetX = defaultOverlayLayout.top5_offset_x;
@@ -997,11 +1204,15 @@ function normalizeLayout(layout){
         map_text_size: mapTextSize,
         map_text_height: mapTextHeight,
         match_text_size: matchTextSize,
+        popup_text_color: popupTextColor,
+        top5_text_color: top5TextColor,
         style_color: styleColor,
         map_text_align: mapTextAlign,
         map_text_valign: mapTextValign,
         match_text_align: matchTextAlign,
         match_text_valign: matchTextValign,
+        show_header: showHeader,
+        show_win_chance: showWinChance,
         show_rank: showRank,
         show_team: showTeam,
         show_chicken: showChicken,
@@ -1048,9 +1259,10 @@ function applyOverlayLayout(layout){
     let mapImageWidth = Math.max(92, Math.min(230, Math.round(130 * headerScale)));
     let matchTextWidth = Math.max(54, Math.min(112, Math.round(74 * headerScale)));
     let matchBarHeight = Math.max(46, clean.map_text_height + 7, Math.round(44 * headerScale));
+    let effectiveMatchBarHeight = clean.show_header ? matchBarHeight : 0;
     let currentRowCount = Math.max(1, document.querySelectorAll("#teams .row").length || 0);
     let defaultMatchBarHeight = Math.max(46, defaultOverlayLayout.map_text_height + 7, 44);
-    let tableHeightDelta = ((clean.table_row_height - defaultOverlayLayout.table_row_height) * (currentRowCount + 1)) + (matchBarHeight - defaultMatchBarHeight);
+    let tableHeightDelta = ((clean.table_row_height - defaultOverlayLayout.table_row_height) * (currentRowCount + 1)) + (effectiveMatchBarHeight - defaultMatchBarHeight);
     let tableVerticalEdgeOffset = 10 - (tableHeightDelta / 2);
     table.style[clean.table_y] = tableVerticalEdgeOffset + "px";
     document.documentElement.style.setProperty("--table-width", clean.table_width + "px");
@@ -1088,9 +1300,12 @@ function applyOverlayLayout(layout){
     document.documentElement.style.setProperty("--top5-card-bg", clean.top5_color || defaultOverlayLayout.top5_color);
     document.documentElement.style.setProperty("--popup-bg", clean.popup_color || defaultOverlayLayout.popup_color);
     document.documentElement.style.setProperty("--map-text-color", clean.map_text_color || defaultOverlayLayout.map_text_color);
+    document.documentElement.style.setProperty("--popup-text-color", clean.popup_text_color || defaultOverlayLayout.popup_text_color);
+    document.documentElement.style.setProperty("--top5-text-color", clean.top5_text_color || defaultOverlayLayout.top5_text_color);
     document.documentElement.style.setProperty("--style-accent-color", clean.style_color || defaultOverlayLayout.style_color);
     document.documentElement.style.setProperty("--style-accent-soft", `color-mix(in srgb, ${clean.style_color || defaultOverlayLayout.style_color} 18%, transparent)`);
     if(matchBar){
+        matchBar.style.display = clean.show_header ? "flex" : "none";
         matchBar.style.background = clean.header_color || defaultOverlayLayout.header_color;
         matchBar.dataset.baseHeight = matchBarHeight;
         matchBar.style.minHeight = matchBarHeight + "px";
@@ -1269,12 +1484,31 @@ function cleanTeamName(team){
     return String(team || "default").trim();
 }
 
-function logoPath(name, ext){
-    return "logos/" + encodeURIComponent(name).replace(/%2F/gi, "") + "." + ext;
+function logoPath(base, name, ext){
+    return base + encodeURIComponent(name).replace(/%2F/gi, "") + "." + ext;
 }
 
 function getLogo(team){
     return getLogoVariants(team)[0];
+}
+
+function getTeamLogoUrl(row, teamLogos){
+    teamLogos = teamLogos || {};
+    let team = row && row.team ? String(row.team) : "";
+
+    if(team && teamLogos[team]){
+        return teamLogos[team];
+    }
+    if(row && row.team_no !== undefined && row.team_no !== null && teamLogos["Team" + row.team_no]){
+        return teamLogos["Team" + row.team_no];
+    }
+
+    let match = team.match(/\d+/);
+    if(match && teamLogos["Team" + match[0]]){
+        return teamLogos["Team" + match[0]];
+    }
+
+    return "";
 }
 
 function getLogoVariants(team){
@@ -1282,18 +1516,21 @@ function getLogoVariants(team){
     let noSpace = name.replace(/\s/g, "");
     let lowerNoSpace = name.toLowerCase().replace(/\s/g, "");
 
-    return [
-        logoPath(name, "png"),
-        logoPath(name, "PNG"),
-        logoPath(name, "jpg"),
-        logoPath(name, "jpeg"),
-        logoPath(name, "webp"),
-        logoPath(noSpace, "png"),
-        logoPath(lowerNoSpace, "png"),
-        logoPath(name.toLowerCase(), "png"),
-        logoPath(name.toUpperCase(), "png"),
-        "logos/default.png"
-    ].filter((value, index, arr)=>value && arr.indexOf(value) === index);
+    let names = [name, noSpace, lowerNoSpace, name.toLowerCase(), name.toUpperCase()];
+    let exts = ["png", "PNG", "jpg", "jpeg", "webp"];
+    let bases = ["logos/", "D4Tbgmilivestanding-web/logos/"];
+    let variants = [];
+
+    bases.forEach(base=>{
+        names.forEach(item=>{
+            exts.forEach(ext=>{
+                variants.push(logoPath(base, item, ext));
+            });
+        });
+        variants.push(base + "default.png");
+    });
+
+    return variants.filter((value, index, arr)=>value && arr.indexOf(value) === index);
 }
 
 function logoFallback(img){
@@ -1309,8 +1546,13 @@ function logoFallback(img){
     }
 }
 
-function logoImgTag(className, team){
+function logoImgTag(className, row, teamLogos){
+    let team = row && row.team ? row.team : row;
+    let serverLogo = getTeamLogoUrl(row, teamLogos);
     let variants = getLogoVariants(team);
+    if(serverLogo) variants.push(serverLogo);
+    variants.push("logos/default.png");
+    variants = variants.filter((value, index, arr)=>value && arr.indexOf(value) === index);
     return `<img class="${className}" src="${variants[0]}" data-index="0" data-variants='${JSON.stringify(variants)}' onerror="logoFallback(this)">`;
 }
 function aliveBars(n){
@@ -1321,7 +1563,25 @@ function aliveBars(n){
     return h;
 }
 
-function showPopup(team,kills,aliveTeams){
+function renderWinChances(chances, layout, teamLogos){
+    let box = document.getElementById("winChance");
+    if(!box) return;
+    if(!layout.show_win_chance || !Array.isArray(chances) || chances.length < 2 || chances.length > 4){
+        box.innerHTML = "";
+        return;
+    }
+    box.innerHTML = chances.map(item=>`
+        <div class="win-card">
+            <div class="win-card-main">
+                ${logoImgTag("win-logo", item, teamLogos)}
+                <div class="win-bars">${aliveBars(item.alive || 0)}</div>
+            </div>
+            <div class="win-label">WWCD - ${item.win_percent || 0}%</div>
+        </div>
+    `).join("");
+}
+
+function showPopup(team,kills,aliveTeams,logoUrl){
 
     let banner = document.getElementById("finishBanner");
 
@@ -1330,6 +1590,9 @@ function showPopup(team,kills,aliveTeams){
 
     let popupLogo = document.getElementById("popupLogo");
     let variants = getLogoVariants(team);
+    if(logoUrl) variants.push(logoUrl);
+    variants.push("logos/default.png");
+    variants = variants.filter((value, index, arr)=>value && arr.indexOf(value) === index);
     popupLogo.dataset.index = "0";
     popupLogo.dataset.variants = JSON.stringify(variants);
     popupLogo.onerror = function(){
@@ -1356,7 +1619,7 @@ function playNextPopup(){
     if(!item) return;
 
     popupPlaying = true;
-    showPopup(item.team, item.kills, item.aliveTeams);
+    showPopup(item.team, item.kills, item.aliveTeams, item.logoUrl);
 
     setTimeout(()=>{
         popupPlaying = false;
@@ -1364,8 +1627,8 @@ function playNextPopup(){
     }, 6800);
 }
 
-function queuePopup(team, kills, aliveTeams){
-    popupQueue.push({ team, kills, aliveTeams });
+function queuePopup(team, kills, aliveTeams, logoUrl){
+    popupQueue.push({ team, kills, aliveTeams, logoUrl });
     playNextPopup();
 }
 function hasRenderableData(data){
@@ -1382,9 +1645,11 @@ function update(data){
         alive_teams: data.alive_teams || "",
         match_no: data.match_no || 1,
         teams: data.teams || [],
+        win_chances: data.win_chances || [],
         top_players: data.top_players || [],
         show_top5: !!data.show_top5,
         show_popup: data.show_popup !== false,
+        team_logos: data.team_logos || {},
         overlay_layout: data.overlay_layout || {}
     });
     if(signature === lastRenderedSignature) return;
@@ -1414,6 +1679,8 @@ let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout);
 
         return (b.kills||0)-(a.kills||0);
     });
+    const teamLogos = data.team_logos || {};
+    renderWinChances(data.win_chances || [], layout, teamLogos);
 
     let html="";
 
@@ -1423,7 +1690,7 @@ let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout);
         <div class="row ${t.finished ? 'finished' : 'alive'}" id="team-${key}" data-team-key="${key}">
             <div data-col="rank">${i+1}</div>
             <div data-col="team" class="team">
-                ${logoImgTag("logo", t.team)}
+                ${logoImgTag("logo", t, teamLogos)}
                 ${t.team}
             </div>
             <div data-col="chicken">${t.chicken||0}</div>
@@ -1470,7 +1737,7 @@ if(popupEnabled) teams.forEach(t=>{
         markFinishPopupShown(key);
         lastFinished = t.team;
 
-        queuePopup(t.team, t.kills, data.alive_teams);
+        queuePopup(t.team, t.kills, data.alive_teams, getTeamLogoUrl(t, teamLogos));
 
         let row = document.getElementById("team-"+rowKey(t.team));
 
@@ -1489,7 +1756,7 @@ if(popupEnabled) teams.forEach(t=>{
         (data.top_players||[]).forEach((p,i)=>{
             topHTML+=`
             <div class="top-card">
-                ${logoImgTag("top-logo", p.team)}
+                ${logoImgTag("top-logo", p, teamLogos)}
                 <div class="top-text">
                     #${i+1}<br>
                     ${p.team}<br>
@@ -1505,18 +1772,23 @@ if(popupEnabled) teams.forEach(t=>{
 }
 
 function fetchData(){
-    if(!KEY_HASH){
-        console.log("Missing customer key in overlay URL. Use ?key=YOUR_HASH");
+    if(IS_FILE_OVERLAY){
         document.body.classList.add("ready");
+        document.getElementById("teams").innerHTML = `
+            <div class="row alive">
+                <div data-col="rank">!</div>
+                <div data-col="team" class="team">Open this overlay from launcher: Open Local HTML</div>
+                <div data-col="chicken">-</div>
+                <div data-col="kills">-</div>
+                <div data-col="total">-</div>
+                <div data-col="status" class="alive-box"></div>
+            </div>`;
+        console.log("Direct file open cannot read live.json. Use http://localhost:8000/overlay%20-D4T.html from launcher.");
         return;
     }
 
     fetch(API_BASE_URL + "?nocache=" + Date.now(), {
-        cache: "no-store",
-        headers: {
-            "Cache-Control": "no-cache",
-            "Pragma": "no-cache"
-        }
+        cache: "no-store"
     })
     .then(r=>{
         if(!r.ok) throw new Error("HTTP " + r.status);
@@ -1529,7 +1801,7 @@ function fetchData(){
     });
 }
 
-setInterval(fetchData, 2000);
+setInterval(fetchData,2000);
 fetchData();
 
 </script>
