@@ -16,6 +16,8 @@
     --status-bar-finished:#ef4444;
     --top5-card-bg: linear-gradient(90deg,rgba(57, 0, 117, 1) 0%, rgba(89, 0, 153, 1) 52%, rgba(75, 0, 130, 1) 100%);
     --popup-bg: linear-gradient(90deg,#7c3aed,#9333ea);
+    --data-left-bg:#f7f7f2;
+    --data-right-bg:#08272a;
     --map-text-color:#ffffff;
     --popup-text-color:#ffffff;
     --top5-text-color:#ffffff;
@@ -641,6 +643,33 @@ body.ready{
     background:var(--status-bar-finished);
 }
 
+.container[data-data-color-mode="split"] .row [data-col="rank"],
+.container[data-data-color-mode="split"] .row [data-col="team"]{
+    height:100%;
+    display:flex;
+    align-items:center;
+    background:var(--data-left-bg);
+}
+
+.container[data-data-color-mode="split"] .row [data-col="chicken"],
+.container[data-data-color-mode="split"] .row [data-col="kills"],
+.container[data-data-color-mode="split"] .row [data-col="total"],
+.container[data-data-color-mode="split"] .row [data-col="status"]{
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--data-right-bg);
+}
+
+.container[data-data-color-mode="split"] .row [data-col="rank"]{
+    justify-content:center;
+}
+
+.container[data-data-color-mode="split"] .row [data-col="status"]{
+    justify-content:flex-end;
+}
+
 /* ANIMATION */
 .row.flash{
     animation:flashRed 0.6s;
@@ -832,21 +861,14 @@ body.ready{
 .container[data-table-style="scoreboard"] #matchBar{
     background:var(--table-header-bg);
     color:#b8fff1;
-    min-height:0;
     padding:0;
     clip-path:none;
     border-bottom:1px solid #071e22;
 }
 .container[data-table-style="scoreboard"] #matchText,
 .container[data-table-style="scoreboard"] #mapText{
-    height:34px !important;
-    min-height:34px;
     align-content:center;
-    padding:2px 8px;
     text-transform:uppercase;
-}
-.container[data-table-style="scoreboard"] #mapImage{
-    display:none;
 }
 .container[data-table-style="scoreboard"] .header{
     background:var(--table-header-bg);
@@ -881,12 +903,19 @@ body.ready{
     display:flex;
     align-items:center;
     justify-content:center;
-    background:var(--style-accent-color);
+    background:var(--data-right-bg);
     color:#ffffff;
 }
 .container[data-table-style="scoreboard"] [data-col="status"]{
     justify-content:flex-end;
     padding-right:5px;
+}
+.container[data-table-style="scoreboard"][data-data-color-mode="all"] [data-col="chicken"],
+.container[data-table-style="scoreboard"][data-data-color-mode="all"] [data-col="kills"],
+.container[data-table-style="scoreboard"][data-data-color-mode="all"] [data-col="total"],
+.container[data-table-style="scoreboard"][data-data-color-mode="all"] [data-col="status"]{
+    background:var(--alive-team-bg);
+    color:var(--table-font-color);
 }
 .container[data-table-style="scoreboard"] .team{
     color:var(--table-font-color);
@@ -1042,6 +1071,9 @@ const defaultOverlayLayout = {
     finished_status_bar_color: "#ef4444",
     top5_color: "linear-gradient(90deg,rgba(57, 0, 117, 1) 0%, rgba(89, 0, 153, 1) 52%, rgba(75, 0, 130, 1) 100%)",
     popup_color: "linear-gradient(90deg,#7c3aed,#9333ea)",
+    data_left_color: "#f7f7f2",
+    data_right_color: "#08272a",
+    data_color_mode: "all",
     map_text: "",
     side_text: "",
     map_text_color: "#ffffff",
@@ -1114,6 +1146,9 @@ function normalizeLayout(layout){
     let finishedStatusBarColor = String(layout.finished_status_bar_color || defaultOverlayLayout.finished_status_bar_color);
     let top5Color = String(layout.top5_color || defaultOverlayLayout.top5_color);
     let popupColor = String(layout.popup_color || defaultOverlayLayout.popup_color);
+    let dataLeftColor = String(layout.data_left_color || defaultOverlayLayout.data_left_color);
+    let dataRightColor = String(layout.data_right_color || defaultOverlayLayout.data_right_color);
+    let dataColorMode = String(layout.data_color_mode || defaultOverlayLayout.data_color_mode).toLowerCase();
     let mapText = String(layout.map_text || defaultOverlayLayout.map_text);
     let sideText = String(layout.side_text || layout.map_text || defaultOverlayLayout.side_text);
     let mapTextColor = String(layout.map_text_color || defaultOverlayLayout.map_text_color);
@@ -1148,6 +1183,7 @@ function normalizeLayout(layout){
     if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(tableStyle)) tableStyle = defaultOverlayLayout.table_style;
     if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(top5Style)) top5Style = defaultOverlayLayout.top5_style;
     if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(popupStyle)) popupStyle = defaultOverlayLayout.popup_style;
+    if(!["all", "split"].includes(dataColorMode)) dataColorMode = defaultOverlayLayout.data_color_mode;
     if(Number.isNaN(offsetX)) offsetX = defaultOverlayLayout.offset_x;
     if(Number.isNaN(offsetY)) offsetY = defaultOverlayLayout.offset_y;
     if(Number.isNaN(top5OffsetX)) top5OffsetX = defaultOverlayLayout.top5_offset_x;
@@ -1198,6 +1234,9 @@ function normalizeLayout(layout){
         finished_status_bar_color: finishedStatusBarColor,
         top5_color: top5Color,
         popup_color: popupColor,
+        data_left_color: dataLeftColor,
+        data_right_color: dataRightColor,
+        data_color_mode: dataColorMode,
         map_text: mapText,
         side_text: sideText,
         map_text_color: mapTextColor,
@@ -1299,6 +1338,8 @@ function applyOverlayLayout(layout){
     document.documentElement.style.setProperty("--status-bar-finished", clean.finished_status_bar_color || defaultOverlayLayout.finished_status_bar_color);
     document.documentElement.style.setProperty("--top5-card-bg", clean.top5_color || defaultOverlayLayout.top5_color);
     document.documentElement.style.setProperty("--popup-bg", clean.popup_color || defaultOverlayLayout.popup_color);
+    document.documentElement.style.setProperty("--data-left-bg", clean.data_left_color || defaultOverlayLayout.data_left_color);
+    document.documentElement.style.setProperty("--data-right-bg", clean.data_right_color || defaultOverlayLayout.data_right_color);
     document.documentElement.style.setProperty("--map-text-color", clean.map_text_color || defaultOverlayLayout.map_text_color);
     document.documentElement.style.setProperty("--popup-text-color", clean.popup_text_color || defaultOverlayLayout.popup_text_color);
     document.documentElement.style.setProperty("--top5-text-color", clean.top5_text_color || defaultOverlayLayout.top5_text_color);
@@ -1340,6 +1381,7 @@ function applyOverlayLayout(layout){
     console.log("Overlay layout:", clean);
     table.dataset.animation = clean.animation_style;
     table.dataset.tableStyle = clean.table_style;
+    table.dataset.dataColorMode = clean.data_color_mode;
     top5.dataset.top5Animation = clean.top5_animation_style;
     top5.dataset.top5Style = clean.top5_style;
     if(finishBanner){
