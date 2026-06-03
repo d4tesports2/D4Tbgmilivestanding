@@ -1689,6 +1689,7 @@ function update(data){
         teams: data.teams || [],
         win_chances: data.win_chances || [],
         top_players: data.top_players || [],
+        finish_events: data.finish_events || [],
         show_top5: !!data.show_top5,
         show_popup: data.show_popup !== false,
         team_logos: data.team_logos || {},
@@ -1770,6 +1771,32 @@ if(!popupEnabled){
     });
 }
 
+let finishEvents = Array.isArray(data.finish_events) ? data.finish_events : [];
+
+if(popupEnabled) finishEvents.forEach(ev=>{
+    if(!ev) return;
+
+    let eventTeam = ev.team || (ev.team_no ? "Team" + ev.team_no : "TEAM");
+    let eventKey = "finish_event:" + String(ev.id || ((ev.match_no || matchNo) + "_" + rowKey(eventTeam)));
+
+    if(!shownFinishedTeams.has(eventKey)){
+        markFinishPopupShown(eventKey);
+        markFinishPopupShown(finishPopupKey(matchNo, eventTeam));
+        lastFinished = eventTeam;
+
+        let eventRow = { team: eventTeam, team_no: ev.team_no };
+        queuePopup(eventTeam, ev.kills || 0, ev.alive_teams || data.alive_teams, getTeamLogoUrl(eventRow, teamLogos));
+
+        let row = document.getElementById("team-"+rowKey(eventTeam));
+        if(row){
+            row.classList.add("flash");
+            setTimeout(()=>{
+                row.classList.remove("flash");
+            },700);
+        }
+    }
+});
+
 if(popupEnabled) teams.forEach(t=>{
     if(!t.finished) return;
 
@@ -1850,4 +1877,6 @@ fetchData();
 
 </body>
 </html>
+
+
 
