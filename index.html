@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
  
 
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Oswald:wght@500;600;700&family=Orbitron:wght@600;700;800&family=Rajdhani:wght@600;700&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
@@ -29,7 +29,9 @@
     --table-header-font-size:12px;
     --table-logo-size:18px;
     --table-bar-height:14px;
-    --table-row-pad-x:8px;
+    --table-row-pad-x:5px;
+    --table-team-gap:1px;
+    --table-font-family:'Rajdhani', sans-serif;
     --top5-scale:1;
     --popup-scale:1;
     --popup-scale-hidden:0.9;
@@ -37,7 +39,7 @@
 
 body{
     margin:0;
-    font-family:'Rajdhani', sans-serif;
+    font-family:var(--table-font-family);
     color:var(--table-font-color);
     overflow:hidden;
     opacity:0;
@@ -605,7 +607,7 @@ body.ready{
 .team{
     display:flex;
     align-items:center;
-    gap:3px;
+    gap:var(--table-team-gap);
     min-width:0;
     overflow:hidden;
     white-space:nowrap;
@@ -748,16 +750,16 @@ body.ready{
     clip-path:none;
 }
 .container[data-table-style="compact"] .header{
-    padding:6px;
-    font-size:10px;
+    padding:0 var(--table-row-pad-x);
+    font-size:var(--table-header-font-size);
 }
 .container[data-table-style="compact"] .row{
-    padding:5px 6px;
+    padding:0 var(--table-row-pad-x);
     font-size:var(--table-row-font-size);
 }
 .container[data-table-style="compact"] .logo{
-    width:15px;
-    height:15px;
+    width:var(--table-logo-size);
+    height:var(--table-logo-size);
 }
 
 .container[data-table-style="glass"]{
@@ -935,7 +937,7 @@ body.ready{
 }
 .container[data-table-style="scoreboard"] .team{
     color:var(--table-font-color);
-    gap:5px;
+    gap:var(--table-team-gap);
 }
 .container[data-table-style="scoreboard"] .logo{
     border:0;
@@ -1072,6 +1074,10 @@ const defaultOverlayLayout = {
     table_width: 320,
     table_row_height: 34,
     table_text_size: 13,
+    table_header_text_size: 12,
+    table_logo_size: 22,
+    table_bar_height: 18,
+    table_font_style: "rajdhani",
     top5_scale: 100,
     popup_scale: 100,
     animation_style: "slide",
@@ -1125,6 +1131,14 @@ const tableColumns = [
     { field: "show_status", col: "status", width: "40px" }
 ];
 
+const tableFontFamilies = {
+    rajdhani: "'Rajdhani', sans-serif",
+    teko: "'Teko', sans-serif",
+    oswald: "'Oswald', sans-serif",
+    orbitron: "'Orbitron', sans-serif",
+    barlow: "'Barlow Condensed', sans-serif"
+};
+
 function layoutBool(layout, key){
     if(Object.prototype.hasOwnProperty.call(layout, key)){
         let value = layout[key];
@@ -1148,6 +1162,10 @@ function normalizeLayout(layout){
     let tableWidth = parseInt(layout.table_width || defaultOverlayLayout.table_width, 10);
     let tableRowHeight = parseInt(layout.table_row_height || defaultOverlayLayout.table_row_height, 10);
     let tableTextSize = parseInt(layout.table_text_size || defaultOverlayLayout.table_text_size, 10);
+    let tableHeaderTextSize = parseInt(layout.table_header_text_size || defaultOverlayLayout.table_header_text_size, 10);
+    let tableLogoSize = parseInt(layout.table_logo_size || defaultOverlayLayout.table_logo_size, 10);
+    let tableBarHeight = parseInt(layout.table_bar_height || defaultOverlayLayout.table_bar_height, 10);
+    let tableFontStyle = String(layout.table_font_style || defaultOverlayLayout.table_font_style).toLowerCase();
     let top5Scale = parseInt(layout.top5_scale || defaultOverlayLayout.top5_scale, 10);
     let popupScale = parseInt(layout.popup_scale || defaultOverlayLayout.popup_scale, 10);
     let animationStyle = String(layout.animation_style || defaultOverlayLayout.animation_style).toLowerCase();
@@ -1199,6 +1217,7 @@ function normalizeLayout(layout){
     if(!["slide", "smooth", "pop", "slide_io", "fade_io", "none"].includes(top5AnimationStyle)) top5AnimationStyle = defaultOverlayLayout.top5_animation_style;
     if(!["slide", "smooth", "pop", "slide_io", "fade_io", "none"].includes(popupAnimationStyle)) popupAnimationStyle = defaultOverlayLayout.popup_animation_style;
     if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(tableStyle)) tableStyle = defaultOverlayLayout.table_style;
+    if(!Object.prototype.hasOwnProperty.call(tableFontFamilies, tableFontStyle)) tableFontStyle = defaultOverlayLayout.table_font_style;
     if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(top5Style)) top5Style = defaultOverlayLayout.top5_style;
     if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(popupStyle)) popupStyle = defaultOverlayLayout.popup_style;
     if(!["all", "split"].includes(dataColorMode)) dataColorMode = defaultOverlayLayout.data_color_mode;
@@ -1209,6 +1228,9 @@ function normalizeLayout(layout){
     if(Number.isNaN(tableWidth)) tableWidth = defaultOverlayLayout.table_width;
     if(Number.isNaN(tableRowHeight)) tableRowHeight = defaultOverlayLayout.table_row_height;
     if(Number.isNaN(tableTextSize)) tableTextSize = defaultOverlayLayout.table_text_size;
+    if(Number.isNaN(tableHeaderTextSize)) tableHeaderTextSize = defaultOverlayLayout.table_header_text_size;
+    if(Number.isNaN(tableLogoSize)) tableLogoSize = defaultOverlayLayout.table_logo_size;
+    if(Number.isNaN(tableBarHeight)) tableBarHeight = defaultOverlayLayout.table_bar_height;
     if(Number.isNaN(top5Scale)) top5Scale = defaultOverlayLayout.top5_scale;
     if(Number.isNaN(popupScale)) popupScale = defaultOverlayLayout.popup_scale;
     if(Number.isNaN(mapTextSize)) mapTextSize = defaultOverlayLayout.map_text_size;
@@ -1217,6 +1239,9 @@ function normalizeLayout(layout){
     tableWidth = Math.max(240, Math.min(560, tableWidth));
     tableRowHeight = Math.max(24, Math.min(62, tableRowHeight));
     tableTextSize = Math.max(8, Math.min(36, tableTextSize));
+    tableHeaderTextSize = Math.max(8, Math.min(28, tableHeaderTextSize));
+    tableLogoSize = Math.max(12, Math.min(44, tableLogoSize));
+    tableBarHeight = Math.max(6, Math.min(42, tableBarHeight));
     top5Scale = Math.max(50, Math.min(180, top5Scale));
     popupScale = Math.max(50, Math.min(180, popupScale));
     mapTextSize = Math.max(8, Math.min(64, mapTextSize));
@@ -1239,6 +1264,10 @@ function normalizeLayout(layout){
         table_width: tableWidth,
         table_row_height: tableRowHeight,
         table_text_size: tableTextSize,
+        table_header_text_size: tableHeaderTextSize,
+        table_logo_size: tableLogoSize,
+        table_bar_height: tableBarHeight,
+        table_font_style: tableFontStyle,
         top5_scale: top5Scale,
         popup_scale: popupScale,
         animation_style: animationStyle,
@@ -1310,13 +1339,12 @@ function applyOverlayLayout(layout){
     table.style.color = clean.font_color || defaultOverlayLayout.font_color;
     table.style.width = clean.table_width + "px";
 
-    let autoRowFontSize = Math.max(10, Math.min(18, Math.round(clean.table_row_height * 0.38)));
     let maxRowFontSize = Math.max(8, clean.table_row_height - 8);
     let rowFontSize = Math.max(8, Math.min(maxRowFontSize, clean.table_text_size));
-    let headerFontSize = Math.max(9, Math.min(16, autoRowFontSize - 1));
-    let logoSize = Math.max(14, Math.min(30, clean.table_row_height - 14));
-    let barHeight = Math.max(10, Math.min(28, clean.table_row_height - 18));
-    let padX = Math.max(6, Math.min(12, Math.round(clean.table_row_height * 0.24)));
+    let headerFontSize = Math.max(8, Math.min(28, clean.table_header_text_size));
+    let logoSize = Math.max(12, Math.min(clean.table_row_height - 2, clean.table_logo_size));
+    let barHeight = Math.max(6, Math.min(clean.table_row_height - 4, clean.table_bar_height));
+    let padX = Math.max(2, Math.min(8, Math.round(clean.table_row_height * 0.14)));
     let headerScale = Math.max(0.72, Math.min(1.55, ((clean.table_width / defaultOverlayLayout.table_width) + (clean.table_row_height / defaultOverlayLayout.table_row_height)) / 2));
     let mapImageWidth = Math.max(92, Math.min(230, Math.round(130 * headerScale)));
     let matchTextWidth = Math.max(54, Math.min(112, Math.round(74 * headerScale)));
@@ -1334,6 +1362,8 @@ function applyOverlayLayout(layout){
     document.documentElement.style.setProperty("--table-logo-size", logoSize + "px");
     document.documentElement.style.setProperty("--table-bar-height", barHeight + "px");
     document.documentElement.style.setProperty("--table-row-pad-x", padX + "px");
+    document.documentElement.style.setProperty("--table-team-gap", "0px");
+    document.documentElement.style.setProperty("--table-font-family", tableFontFamilies[clean.table_font_style] || tableFontFamilies.rajdhani);
     document.documentElement.style.setProperty("--top5-scale", (clean.top5_scale / 100).toFixed(2));
     document.documentElement.style.setProperty("--popup-scale", (clean.popup_scale / 100).toFixed(2));
     document.documentElement.style.setProperty("--popup-scale-hidden", ((clean.popup_scale / 100) * 0.9).toFixed(2));
