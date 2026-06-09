@@ -578,8 +578,16 @@ body.ready{
     min-height:var(--table-row-height);
     padding:0 var(--table-row-pad-x);
     font-size:var(--table-row-font-size);
+    line-height:1;
     transition:transform 0.45s cubic-bezier(.2,.8,.2,1), opacity 0.35s ease, filter 0.35s ease;
     will-change:transform, opacity;
+}
+
+.row [data-col]{
+    min-width:0;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
 }
 
 .row:nth-child(even){ background:#0b1220; }
@@ -598,6 +606,14 @@ body.ready{
     display:flex;
     align-items:center;
     gap:3px;
+    min-width:0;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
+.team .logo{
+    flex:0 0 auto;
 }
 
 .logo{
@@ -737,7 +753,7 @@ body.ready{
 }
 .container[data-table-style="compact"] .row{
     padding:5px 6px;
-    font-size:12px;
+    font-size:var(--table-row-font-size);
 }
 .container[data-table-style="compact"] .logo{
     width:15px;
@@ -1055,6 +1071,7 @@ const defaultOverlayLayout = {
     top5_offset_y: 0,
     table_width: 320,
     table_row_height: 34,
+    table_text_size: 13,
     top5_scale: 100,
     popup_scale: 100,
     animation_style: "slide",
@@ -1130,6 +1147,7 @@ function normalizeLayout(layout){
     let top5OffsetY = parseInt(layout.top5_offset_y || defaultOverlayLayout.top5_offset_y, 10);
     let tableWidth = parseInt(layout.table_width || defaultOverlayLayout.table_width, 10);
     let tableRowHeight = parseInt(layout.table_row_height || defaultOverlayLayout.table_row_height, 10);
+    let tableTextSize = parseInt(layout.table_text_size || defaultOverlayLayout.table_text_size, 10);
     let top5Scale = parseInt(layout.top5_scale || defaultOverlayLayout.top5_scale, 10);
     let popupScale = parseInt(layout.popup_scale || defaultOverlayLayout.popup_scale, 10);
     let animationStyle = String(layout.animation_style || defaultOverlayLayout.animation_style).toLowerCase();
@@ -1190,6 +1208,7 @@ function normalizeLayout(layout){
     if(Number.isNaN(top5OffsetY)) top5OffsetY = defaultOverlayLayout.top5_offset_y;
     if(Number.isNaN(tableWidth)) tableWidth = defaultOverlayLayout.table_width;
     if(Number.isNaN(tableRowHeight)) tableRowHeight = defaultOverlayLayout.table_row_height;
+    if(Number.isNaN(tableTextSize)) tableTextSize = defaultOverlayLayout.table_text_size;
     if(Number.isNaN(top5Scale)) top5Scale = defaultOverlayLayout.top5_scale;
     if(Number.isNaN(popupScale)) popupScale = defaultOverlayLayout.popup_scale;
     if(Number.isNaN(mapTextSize)) mapTextSize = defaultOverlayLayout.map_text_size;
@@ -1197,6 +1216,7 @@ function normalizeLayout(layout){
     if(Number.isNaN(matchTextSize)) matchTextSize = defaultOverlayLayout.match_text_size;
     tableWidth = Math.max(240, Math.min(560, tableWidth));
     tableRowHeight = Math.max(24, Math.min(62, tableRowHeight));
+    tableTextSize = Math.max(8, Math.min(36, tableTextSize));
     top5Scale = Math.max(50, Math.min(180, top5Scale));
     popupScale = Math.max(50, Math.min(180, popupScale));
     mapTextSize = Math.max(8, Math.min(64, mapTextSize));
@@ -1218,6 +1238,7 @@ function normalizeLayout(layout){
         top5_offset_y: top5OffsetY,
         table_width: tableWidth,
         table_row_height: tableRowHeight,
+        table_text_size: tableTextSize,
         top5_scale: top5Scale,
         popup_scale: popupScale,
         animation_style: animationStyle,
@@ -1289,8 +1310,10 @@ function applyOverlayLayout(layout){
     table.style.color = clean.font_color || defaultOverlayLayout.font_color;
     table.style.width = clean.table_width + "px";
 
-    let rowFontSize = Math.max(10, Math.min(18, Math.round(clean.table_row_height * 0.38)));
-    let headerFontSize = Math.max(9, Math.min(16, rowFontSize - 1));
+    let autoRowFontSize = Math.max(10, Math.min(18, Math.round(clean.table_row_height * 0.38)));
+    let maxRowFontSize = Math.max(8, clean.table_row_height - 8);
+    let rowFontSize = Math.max(8, Math.min(maxRowFontSize, clean.table_text_size));
+    let headerFontSize = Math.max(9, Math.min(16, autoRowFontSize - 1));
     let logoSize = Math.max(14, Math.min(30, clean.table_row_height - 14));
     let barHeight = Math.max(10, Math.min(28, clean.table_row_height - 18));
     let padX = Math.max(6, Math.min(12, Math.round(clean.table_row_height * 0.24)));
