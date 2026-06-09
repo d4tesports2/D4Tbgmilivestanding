@@ -521,7 +521,7 @@ body.ready{
 
 .header{
     display:grid;
-    grid-template-columns:30px 1fr 28px 25px 30px 40px;
+    grid-template-columns:22px 150px 30px 30px 32px 45px;
     background:var(--table-header-bg);
     min-height:var(--table-row-height);
     align-items:center;
@@ -575,7 +575,7 @@ body.ready{
 
 .row{
     display:grid;
-    grid-template-columns:18px 1fr 28px 25px 30px 40px;
+    grid-template-columns:22px 150px 30px 30px 32px 45px;
     align-items:center;
     min-height:var(--table-row-height);
     padding:0 var(--table-row-pad-x);
@@ -1078,6 +1078,12 @@ const defaultOverlayLayout = {
     table_logo_size: 22,
     table_bar_height: 18,
     table_font_style: "rajdhani",
+    table_col_rank_width: 22,
+    table_col_team_width: 150,
+    table_col_chicken_width: 30,
+    table_col_kills_width: 30,
+    table_col_total_width: 32,
+    table_col_status_width: 45,
     top5_scale: 100,
     popup_scale: 100,
     animation_style: "slide",
@@ -1123,12 +1129,12 @@ const defaultOverlayLayout = {
 };
 
 const tableColumns = [
-    { field: "show_rank", col: "rank", width: "18px" },
-    { field: "show_team", col: "team", width: "1fr" },
-    { field: "show_chicken", col: "chicken", width: "28px" },
-    { field: "show_kills", col: "kills", width: "25px" },
-    { field: "show_total", col: "total", width: "30px" },
-    { field: "show_status", col: "status", width: "40px" }
+    { field: "show_rank", col: "rank", widthKey: "table_col_rank_width", defaultWidth: 22 },
+    { field: "show_team", col: "team", widthKey: "table_col_team_width", defaultWidth: 150 },
+    { field: "show_chicken", col: "chicken", widthKey: "table_col_chicken_width", defaultWidth: 30 },
+    { field: "show_kills", col: "kills", widthKey: "table_col_kills_width", defaultWidth: 30 },
+    { field: "show_total", col: "total", widthKey: "table_col_total_width", defaultWidth: 32 },
+    { field: "show_status", col: "status", widthKey: "table_col_status_width", defaultWidth: 45 }
 ];
 
 const tableFontFamilies = {
@@ -1166,6 +1172,12 @@ function normalizeLayout(layout){
     let tableLogoSize = parseInt(layout.table_logo_size || defaultOverlayLayout.table_logo_size, 10);
     let tableBarHeight = parseInt(layout.table_bar_height || defaultOverlayLayout.table_bar_height, 10);
     let tableFontStyle = String(layout.table_font_style || defaultOverlayLayout.table_font_style).toLowerCase();
+    let tableColRankWidth = parseInt(layout.table_col_rank_width || defaultOverlayLayout.table_col_rank_width, 10);
+    let tableColTeamWidth = parseInt(layout.table_col_team_width || defaultOverlayLayout.table_col_team_width, 10);
+    let tableColChickenWidth = parseInt(layout.table_col_chicken_width || defaultOverlayLayout.table_col_chicken_width, 10);
+    let tableColKillsWidth = parseInt(layout.table_col_kills_width || defaultOverlayLayout.table_col_kills_width, 10);
+    let tableColTotalWidth = parseInt(layout.table_col_total_width || defaultOverlayLayout.table_col_total_width, 10);
+    let tableColStatusWidth = parseInt(layout.table_col_status_width || defaultOverlayLayout.table_col_status_width, 10);
     let top5Scale = parseInt(layout.top5_scale || defaultOverlayLayout.top5_scale, 10);
     let popupScale = parseInt(layout.popup_scale || defaultOverlayLayout.popup_scale, 10);
     let animationStyle = String(layout.animation_style || defaultOverlayLayout.animation_style).toLowerCase();
@@ -1231,6 +1243,12 @@ function normalizeLayout(layout){
     if(Number.isNaN(tableHeaderTextSize)) tableHeaderTextSize = defaultOverlayLayout.table_header_text_size;
     if(Number.isNaN(tableLogoSize)) tableLogoSize = defaultOverlayLayout.table_logo_size;
     if(Number.isNaN(tableBarHeight)) tableBarHeight = defaultOverlayLayout.table_bar_height;
+    if(Number.isNaN(tableColRankWidth)) tableColRankWidth = defaultOverlayLayout.table_col_rank_width;
+    if(Number.isNaN(tableColTeamWidth)) tableColTeamWidth = defaultOverlayLayout.table_col_team_width;
+    if(Number.isNaN(tableColChickenWidth)) tableColChickenWidth = defaultOverlayLayout.table_col_chicken_width;
+    if(Number.isNaN(tableColKillsWidth)) tableColKillsWidth = defaultOverlayLayout.table_col_kills_width;
+    if(Number.isNaN(tableColTotalWidth)) tableColTotalWidth = defaultOverlayLayout.table_col_total_width;
+    if(Number.isNaN(tableColStatusWidth)) tableColStatusWidth = defaultOverlayLayout.table_col_status_width;
     if(Number.isNaN(top5Scale)) top5Scale = defaultOverlayLayout.top5_scale;
     if(Number.isNaN(popupScale)) popupScale = defaultOverlayLayout.popup_scale;
     if(Number.isNaN(mapTextSize)) mapTextSize = defaultOverlayLayout.map_text_size;
@@ -1242,6 +1260,12 @@ function normalizeLayout(layout){
     tableHeaderTextSize = Math.max(8, Math.min(28, tableHeaderTextSize));
     tableLogoSize = Math.max(12, Math.min(44, tableLogoSize));
     tableBarHeight = Math.max(6, Math.min(42, tableBarHeight));
+    tableColRankWidth = Math.max(12, Math.min(240, tableColRankWidth));
+    tableColTeamWidth = Math.max(12, Math.min(240, tableColTeamWidth));
+    tableColChickenWidth = Math.max(12, Math.min(240, tableColChickenWidth));
+    tableColKillsWidth = Math.max(12, Math.min(240, tableColKillsWidth));
+    tableColTotalWidth = Math.max(12, Math.min(240, tableColTotalWidth));
+    tableColStatusWidth = Math.max(12, Math.min(240, tableColStatusWidth));
     top5Scale = Math.max(50, Math.min(180, top5Scale));
     popupScale = Math.max(50, Math.min(180, popupScale));
     mapTextSize = Math.max(8, Math.min(64, mapTextSize));
@@ -1268,6 +1292,12 @@ function normalizeLayout(layout){
         table_logo_size: tableLogoSize,
         table_bar_height: tableBarHeight,
         table_font_style: tableFontStyle,
+        table_col_rank_width: tableColRankWidth,
+        table_col_team_width: tableColTeamWidth,
+        table_col_chicken_width: tableColChickenWidth,
+        table_col_kills_width: tableColKillsWidth,
+        table_col_total_width: tableColTotalWidth,
+        table_col_status_width: tableColStatusWidth,
         top5_scale: top5Scale,
         popup_scale: popupScale,
         animation_style: animationStyle,
@@ -1450,7 +1480,12 @@ function applyTableColumns(layout){
         visibleColumns = tableColumns;
     }
 
-    let gridTemplate = visibleColumns.map(column => column.width).join(" ");
+    let gridTemplate = visibleColumns.map(column => {
+        let width = parseInt(layout[column.widthKey] || column.defaultWidth, 10);
+        if(Number.isNaN(width)) width = column.defaultWidth;
+        width = Math.max(12, Math.min(240, width));
+        return width + "px";
+    }).join(" ");
     document.querySelector(".header").style.gridTemplateColumns = gridTemplate;
     document.querySelectorAll(".row").forEach(row=>{
         row.style.gridTemplateColumns = gridTemplate;
