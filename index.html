@@ -521,7 +521,7 @@ body.ready{
 
 .header{
     display:grid;
-    grid-template-columns:22px 150px 30px 30px 32px 45px;
+    grid-template-columns:22px minmax(0,1fr) 30px 30px 32px 45px;
     background:var(--table-header-bg);
     min-height:var(--table-row-height);
     align-items:center;
@@ -575,7 +575,7 @@ body.ready{
 
 .row{
     display:grid;
-    grid-template-columns:22px 150px 30px 30px 32px 45px;
+    grid-template-columns:22px minmax(0,1fr) 30px 30px 32px 45px;
     align-items:center;
     min-height:var(--table-row-height);
     padding:0 var(--table-row-pad-x);
@@ -1071,7 +1071,7 @@ const defaultOverlayLayout = {
     offset_y: 0,
     top5_offset_x: 0,
     top5_offset_y: 0,
-    table_width: 320,
+    table_width: 380,
     table_row_height: 34,
     table_text_size: 13,
     table_header_text_size: 12,
@@ -1079,7 +1079,7 @@ const defaultOverlayLayout = {
     table_bar_height: 18,
     table_font_style: "rajdhani",
     table_col_rank_width: 22,
-    table_col_team_width: 150,
+    table_col_team_width: 220,
     table_col_chicken_width: 30,
     table_col_kills_width: 30,
     table_col_total_width: 32,
@@ -1130,7 +1130,7 @@ const defaultOverlayLayout = {
 
 const tableColumns = [
     { field: "show_rank", col: "rank", widthKey: "table_col_rank_width", defaultWidth: 22 },
-    { field: "show_team", col: "team", widthKey: "table_col_team_width", defaultWidth: 150 },
+    { field: "show_team", col: "team", widthKey: "table_col_team_width", defaultWidth: 220, flex: true },
     { field: "show_chicken", col: "chicken", widthKey: "table_col_chicken_width", defaultWidth: 30 },
     { field: "show_kills", col: "kills", widthKey: "table_col_kills_width", defaultWidth: 30 },
     { field: "show_total", col: "total", widthKey: "table_col_total_width", defaultWidth: 32 },
@@ -1260,12 +1260,12 @@ function normalizeLayout(layout){
     tableHeaderTextSize = Math.max(8, Math.min(28, tableHeaderTextSize));
     tableLogoSize = Math.max(12, Math.min(44, tableLogoSize));
     tableBarHeight = Math.max(6, Math.min(42, tableBarHeight));
-    tableColRankWidth = Math.max(12, Math.min(240, tableColRankWidth));
-    tableColTeamWidth = Math.max(12, Math.min(240, tableColTeamWidth));
-    tableColChickenWidth = Math.max(12, Math.min(240, tableColChickenWidth));
-    tableColKillsWidth = Math.max(12, Math.min(240, tableColKillsWidth));
-    tableColTotalWidth = Math.max(12, Math.min(240, tableColTotalWidth));
-    tableColStatusWidth = Math.max(12, Math.min(240, tableColStatusWidth));
+    tableColRankWidth = Math.max(12, Math.min(420, tableColRankWidth));
+    tableColTeamWidth = Math.max(12, Math.min(420, tableColTeamWidth));
+    tableColChickenWidth = Math.max(12, Math.min(420, tableColChickenWidth));
+    tableColKillsWidth = Math.max(12, Math.min(420, tableColKillsWidth));
+    tableColTotalWidth = Math.max(12, Math.min(420, tableColTotalWidth));
+    tableColStatusWidth = Math.max(12, Math.min(420, tableColStatusWidth));
     top5Scale = Math.max(50, Math.min(180, top5Scale));
     popupScale = Math.max(50, Math.min(180, popupScale));
     mapTextSize = Math.max(8, Math.min(64, mapTextSize));
@@ -1480,11 +1480,26 @@ function applyTableColumns(layout){
         visibleColumns = tableColumns;
     }
 
-    let gridTemplate = visibleColumns.map(column => {
+    let columnWidths = visibleColumns.map(column => {
         let width = parseInt(layout[column.widthKey] || column.defaultWidth, 10);
         if(Number.isNaN(width)) width = column.defaultWidth;
-        width = Math.max(12, Math.min(240, width));
-        return width + "px";
+        return {
+            column,
+            width: Math.max(12, Math.min(420, width))
+        };
+    });
+    let fixedWidth = columnWidths
+        .filter(item => !item.column.flex)
+        .reduce((total, item) => total + item.width, 0);
+    let rowPadX = Math.max(2, Math.min(8, Math.round((layout.table_row_height || defaultOverlayLayout.table_row_height) * 0.14)));
+    let contentWidth = Math.max(60, (layout.table_width || defaultOverlayLayout.table_width) - (rowPadX * 2));
+    let flexCount = Math.max(1, columnWidths.filter(item => item.column.flex).length);
+    let availableFlexWidth = Math.max(12, Math.floor((contentWidth - fixedWidth) / flexCount));
+    let gridTemplate = columnWidths.map(item => {
+        if(item.column.flex){
+            return `minmax(${Math.min(item.width, availableFlexWidth)}px,1fr)`;
+        }
+        return item.width + "px";
     }).join(" ");
     document.querySelector(".header").style.gridTemplateColumns = gridTemplate;
     document.querySelectorAll(".row").forEach(row=>{
