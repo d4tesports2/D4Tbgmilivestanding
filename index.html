@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -1003,6 +1003,7 @@ body.ready{
 
 </div>
 
+<div id="tableWrapper">
 <div class="container">
 
     <!-- ðŸ”¥ MATCH BAR -->
@@ -1022,6 +1023,7 @@ body.ready{
     </div>
 
     <div id="teams"></div>
+</div>
 </div>
 
 <script>
@@ -1118,6 +1120,8 @@ const defaultOverlayLayout = {
     match_text_valign: "top",
     show_header: true,
     show_win_chance: true,
+    table_visible: true,
+    auto_hide_table_top4: false,
     show_rank: true,
     show_team: true,
     show_chicken: true,
@@ -1212,6 +1216,8 @@ function normalizeLayout(layout){
     let matchTextValign = String(layout.match_text_valign || defaultOverlayLayout.match_text_valign).toLowerCase();
     let showHeader = layoutBool(layout, "show_header");
     let showWinChance = layoutBool(layout, "show_win_chance");
+    let tableVisible = layoutBool(layout, "table_visible");
+    let autoHideTableTop4 = layoutBool(layout, "auto_hide_table_top4");
     let showRank = layoutBool(layout, "show_rank");
     let showTeam = layoutBool(layout, "show_team");
     let showChicken = layoutBool(layout, "show_chicken");
@@ -1332,6 +1338,8 @@ function normalizeLayout(layout){
         match_text_valign: matchTextValign,
         show_header: showHeader,
         show_win_chance: showWinChance,
+        table_visible: tableVisible,
+        auto_hide_table_top4: autoHideTableTop4,
         show_rank: showRank,
         show_team: showTeam,
         show_chicken: showChicken,
@@ -1343,9 +1351,17 @@ function normalizeLayout(layout){
     };
 }
 
-function applyOverlayLayout(layout){
+function shouldShowTable(layout, aliveTeams){
+    if(!layout.table_visible) return false;
+    if(!layout.auto_hide_table_top4 || !layout.show_win_chance) return true;
+    let alive = parseInt(aliveTeams, 10);
+    return !Number.isFinite(alive) || alive > 4;
+}
+
+function applyOverlayLayout(layout, aliveTeams){
     let clean = normalizeLayout(layout);
     let table = document.querySelector(".container");
+    let tableWrapper = document.getElementById("tableWrapper");
     let top5 = document.getElementById("top5");
     let matchBar = document.getElementById("matchBar");
     let finishBanner = document.getElementById("finishBanner");
@@ -1353,6 +1369,8 @@ function applyOverlayLayout(layout){
     let mapImage = document.getElementById("mapImage");
     let mapText = document.getElementById("mapText");
     let matchText = document.getElementById("matchText");
+
+    if(tableWrapper) tableWrapper.style.display = shouldShowTable(clean, aliveTeams) ? "" : "none";
 
     table.style.left = "auto";
     table.style.right = "auto";
@@ -1809,7 +1827,7 @@ if (incomingLayout) {
     lastValidOverlayLayout = incomingLayout;
 }
 
-let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout);
+let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout, data.alive_teams);
     let previousPositions = getRowPositions();
 
     // ðŸ”¥ MATCH NO UPDATE (ONLY ADDITION)
@@ -1849,7 +1867,7 @@ let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout);
     });
 
     document.getElementById("teams").innerHTML = html;
-    layout = applyOverlayLayout(layout);
+    layout = applyOverlayLayout(layout, data.alive_teams);
     applyTableColumns(layout);
     animateTableRows(previousPositions, layout.animation_style);
 
