@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
- 
 
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Oswald:wght@500;600;700&family=Orbitron:wght@600;700;800&family=Rajdhani:wght@600;700&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Asset&family=Barlow+Condensed:wght@500;600;700&family=Ewert&family=Lobster&family=Orbitron:wght@500;600;700&family=Oswald:wght@500;600;700&family=Rajdhani:wght@600;700&family=Story+Script&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
-    --alive-team-bg: linear-gradient(90deg,rgba(65, 0, 117, 1) 0%, rgba(89, 0, 153, 1) 52%, rgba(75, 0, 130, 1) 100%);
-    --finished-team-bg: #020617;
-    --table-header-bg: linear-gradient(90deg,#9333ea,#7c3aed);
+    --alive-team-bg: linear-gradient(100deg,#21004b 0%,#6d28d9 52%,#3b0764 100%);
+    --finished-team-bg: linear-gradient(100deg,#111827 0%,#030712 100%);
+    --table-header-bg: linear-gradient(100deg,#c084fc 0%,#7c3aed 48%,#4c1d95 100%);
     --table-font-color:#ffffff;
     --status-bar-active:#00ff9d;
     --status-bar-finished:#ef4444;
@@ -29,17 +29,19 @@
     --table-header-font-size:12px;
     --table-logo-size:18px;
     --table-bar-height:14px;
-    --table-row-pad-x:5px;
-    --table-team-gap:1px;
-    --table-font-family:'Rajdhani', sans-serif;
+    --status-bar-width:10px;
+    --status-bar-gap:2px;
+    --row-border-thickness:1px;
+    --table-row-pad-x:8px;
     --top5-scale:1;
     --popup-scale:1;
     --popup-scale-hidden:0.9;
+    --overlay-font:'Rajdhani', sans-serif;
 }
 
 body{
     margin:0;
-    font-family:var(--table-font-family);
+    font-family:var(--overlay-font);
     color:var(--table-font-color);
     overflow:hidden;
     opacity:0;
@@ -498,6 +500,33 @@ body.ready{
     overflow:hidden;
 }
 
+#tableWrapper{
+    opacity:1;
+    visibility:visible;
+    transition:opacity 320ms ease, visibility 0s linear 0s;
+    will-change:opacity;
+}
+
+#tableWrapper[data-visible="false"]{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity 320ms ease, visibility 0s linear 320ms;
+}
+
+/* Visibility is opacity-only until its fade has finished: OBS receives a
+   stable transparent frame instead of display toggling/flicker. */
+#tableWrapper[data-visible="true"]{ pointer-events:auto; }
+
+body[data-table-font="story_script"]{ --overlay-font:'Story Script', cursive; }
+body[data-table-font="lobster"]{ --overlay-font:'Lobster', cursive; }
+body[data-table-font="asset"]{ --overlay-font:'Asset', serif; }
+body[data-table-font="ewert"]{ --overlay-font:'Ewert', serif; }
+body[data-table-font="teko"]{ --overlay-font:'Teko', sans-serif; }
+body[data-table-font="oswald"]{ --overlay-font:'Oswald', sans-serif; }
+body[data-table-font="orbitron"]{ --overlay-font:'Orbitron', sans-serif; }
+body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
+
 /* ðŸ”¥ MATCH BAR (ONLY ADDITION) */
 #matchBar{
     display:flex;
@@ -521,7 +550,7 @@ body.ready{
 
 .header{
     display:grid;
-    grid-template-columns:22px minmax(0,1fr) 30px 30px 32px 45px;
+    grid-template-columns:30px 1fr 28px 25px 30px 40px;
     background:var(--table-header-bg);
     min-height:var(--table-row-height);
     align-items:center;
@@ -575,25 +604,19 @@ body.ready{
 
 .row{
     display:grid;
-    grid-template-columns:22px minmax(0,1fr) 30px 30px 32px 45px;
+    grid-template-columns:18px 1fr 28px 25px 30px 40px;
     align-items:center;
     min-height:var(--table-row-height);
     padding:0 var(--table-row-pad-x);
     font-size:var(--table-row-font-size);
-    line-height:1;
     transition:transform 0.45s cubic-bezier(.2,.8,.2,1), opacity 0.35s ease, filter 0.35s ease;
     will-change:transform, opacity;
+    border-bottom:var(--row-border-thickness) solid rgba(255,255,255,0.18);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
-.row [data-col]{
-    min-width:0;
-    overflow:hidden;
-    white-space:nowrap;
-    text-overflow:ellipsis;
-}
-
-.row:nth-child(even){ background:#0b1220; }
-.row:nth-child(odd){ background:#020617; }
+.row:nth-child(even){ background:linear-gradient(100deg,#111827,#030712); }
+.row:nth-child(odd){ background:linear-gradient(100deg,#172033,#07101f); }
 
 .row.alive{
     background:var(--alive-team-bg);
@@ -607,15 +630,7 @@ body.ready{
 .team{
     display:flex;
     align-items:center;
-    gap:var(--table-team-gap);
-    min-width:0;
-    overflow:hidden;
-    white-space:nowrap;
-    text-overflow:ellipsis;
-}
-
-.team .logo{
-    flex:0 0 auto;
+    gap:3px;
 }
 
 .logo{
@@ -646,16 +661,16 @@ body.ready{
 .alive-box{
     display:flex;
     justify-content:flex-end;
-    gap:2px;
+    gap:var(--status-bar-gap);
 }
 
 .bar{
-    width:5px;
+    width:var(--status-bar-width);
     height:var(--table-bar-height);
     background:var(--status-bar-finished);
 }
 .bar.active{
-    background:var(--status-bar-active);
+    background:linear-gradient(180deg,#65ffd0 0%,var(--status-bar-active) 100%);
 }
 .row.finished .bar{
     background:var(--status-bar-finished);
@@ -750,16 +765,16 @@ body.ready{
     clip-path:none;
 }
 .container[data-table-style="compact"] .header{
-    padding:0 var(--table-row-pad-x);
-    font-size:var(--table-header-font-size);
+    padding:6px;
+    font-size:10px;
 }
 .container[data-table-style="compact"] .row{
-    padding:0 var(--table-row-pad-x);
-    font-size:var(--table-row-font-size);
+    padding:5px 6px;
+    font-size:12px;
 }
 .container[data-table-style="compact"] .logo{
-    width:var(--table-logo-size);
-    height:var(--table-logo-size);
+    width:15px;
+    height:15px;
 }
 
 .container[data-table-style="glass"]{
@@ -937,7 +952,7 @@ body.ready{
 }
 .container[data-table-style="scoreboard"] .team{
     color:var(--table-font-color);
-    gap:var(--table-team-gap);
+    gap:5px;
 }
 .container[data-table-style="scoreboard"] .logo{
     border:0;
@@ -1052,7 +1067,7 @@ const SERVER_URL = "https://overlay-server-in1h.onrender.com";
 const IS_FILE_OVERLAY = window.location.protocol === "file:";
 const IS_LOCAL_OVERLAY = ["localhost", "127.0.0.1"].includes(window.location.hostname);
 const API_BASE_URL = IS_LOCAL_OVERLAY
-    ? "live.json"
+    ? "/live.json"
     : KEY_HASH
     ? `${SERVER_URL}/data/${KEY_HASH}`
     : `${SERVER_URL}/data`;
@@ -1073,19 +1088,11 @@ const defaultOverlayLayout = {
     offset_y: 0,
     top5_offset_x: 0,
     top5_offset_y: 0,
-    table_width: 380,
+    table_width: 320,
     table_row_height: 34,
-    table_text_size: 13,
-    table_header_text_size: 12,
-    table_logo_size: 22,
-    table_bar_height: 18,
-    table_font_style: "rajdhani",
-    table_col_rank_width: 22,
-    table_col_team_width: 220,
-    table_col_chicken_width: 30,
-    table_col_kills_width: 30,
-    table_col_total_width: 32,
-    table_col_status_width: 45,
+    status_bar_width: 10,
+    status_bar_gap: 2,
+    row_border_thickness: 1,
     top5_scale: 100,
     popup_scale: 100,
     animation_style: "slide",
@@ -1094,9 +1101,10 @@ const defaultOverlayLayout = {
     table_style: "current",
     top5_style: "current",
     popup_style: "current",
-    alive_color: "linear-gradient(90deg,rgba(65, 0, 117, 1) 0%, rgba(89, 0, 153, 1) 52%, rgba(75, 0, 130, 1) 100%)",
-    finished_color: "#020617",
-    header_color: "linear-gradient(90deg,#9333ea,#7c3aed)",
+    table_font_style: "rajdhani",
+    alive_color: "linear-gradient(100deg,#21004b 0%,#6d28d9 52%,#3b0764 100%)",
+    finished_color: "linear-gradient(100deg,#111827 0%,#030712 100%)",
+    header_color: "linear-gradient(100deg,#c084fc 0%,#7c3aed 48%,#4c1d95 100%)",
     font_color: "#ffffff",
     status_bar_color: "#00ff9d",
     finished_status_bar_color: "#ef4444",
@@ -1133,21 +1141,13 @@ const defaultOverlayLayout = {
 };
 
 const tableColumns = [
-    { field: "show_rank", col: "rank", widthKey: "table_col_rank_width", defaultWidth: 22 },
-    { field: "show_team", col: "team", widthKey: "table_col_team_width", defaultWidth: 220, flex: true },
-    { field: "show_chicken", col: "chicken", widthKey: "table_col_chicken_width", defaultWidth: 30 },
-    { field: "show_kills", col: "kills", widthKey: "table_col_kills_width", defaultWidth: 30 },
-    { field: "show_total", col: "total", widthKey: "table_col_total_width", defaultWidth: 32 },
-    { field: "show_status", col: "status", widthKey: "table_col_status_width", defaultWidth: 45 }
+    { field: "show_rank", col: "rank", width: "18px" },
+    { field: "show_team", col: "team", width: "1fr" },
+    { field: "show_chicken", col: "chicken", width: "28px" },
+    { field: "show_kills", col: "kills", width: "25px" },
+    { field: "show_total", col: "total", width: "30px" },
+    { field: "show_status", col: "status", width: "40px" }
 ];
-
-const tableFontFamilies = {
-    rajdhani: "'Rajdhani', sans-serif",
-    teko: "'Teko', sans-serif",
-    oswald: "'Oswald', sans-serif",
-    orbitron: "'Orbitron', sans-serif",
-    barlow: "'Barlow Condensed', sans-serif"
-};
 
 function layoutBool(layout, key){
     if(Object.prototype.hasOwnProperty.call(layout, key)){
@@ -1171,17 +1171,9 @@ function normalizeLayout(layout){
     let top5OffsetY = parseInt(layout.top5_offset_y || defaultOverlayLayout.top5_offset_y, 10);
     let tableWidth = parseInt(layout.table_width || defaultOverlayLayout.table_width, 10);
     let tableRowHeight = parseInt(layout.table_row_height || defaultOverlayLayout.table_row_height, 10);
-    let tableTextSize = parseInt(layout.table_text_size || defaultOverlayLayout.table_text_size, 10);
-    let tableHeaderTextSize = parseInt(layout.table_header_text_size || defaultOverlayLayout.table_header_text_size, 10);
-    let tableLogoSize = parseInt(layout.table_logo_size || defaultOverlayLayout.table_logo_size, 10);
-    let tableBarHeight = parseInt(layout.table_bar_height || defaultOverlayLayout.table_bar_height, 10);
-    let tableFontStyle = String(layout.table_font_style || defaultOverlayLayout.table_font_style).toLowerCase();
-    let tableColRankWidth = parseInt(layout.table_col_rank_width || defaultOverlayLayout.table_col_rank_width, 10);
-    let tableColTeamWidth = parseInt(layout.table_col_team_width || defaultOverlayLayout.table_col_team_width, 10);
-    let tableColChickenWidth = parseInt(layout.table_col_chicken_width || defaultOverlayLayout.table_col_chicken_width, 10);
-    let tableColKillsWidth = parseInt(layout.table_col_kills_width || defaultOverlayLayout.table_col_kills_width, 10);
-    let tableColTotalWidth = parseInt(layout.table_col_total_width || defaultOverlayLayout.table_col_total_width, 10);
-    let tableColStatusWidth = parseInt(layout.table_col_status_width || defaultOverlayLayout.table_col_status_width, 10);
+    let statusBarWidth = parseInt(layout.status_bar_width ?? defaultOverlayLayout.status_bar_width, 10);
+    let statusBarGap = parseInt(layout.status_bar_gap ?? defaultOverlayLayout.status_bar_gap, 10);
+    let rowBorderThickness = parseInt(layout.row_border_thickness ?? defaultOverlayLayout.row_border_thickness, 10);
     let top5Scale = parseInt(layout.top5_scale || defaultOverlayLayout.top5_scale, 10);
     let popupScale = parseInt(layout.popup_scale || defaultOverlayLayout.popup_scale, 10);
     let animationStyle = String(layout.animation_style || defaultOverlayLayout.animation_style).toLowerCase();
@@ -1190,6 +1182,7 @@ function normalizeLayout(layout){
     let tableStyle = String(layout.table_style || defaultOverlayLayout.table_style).toLowerCase();
     let top5Style = String(layout.top5_style || layout.table_style || defaultOverlayLayout.top5_style).toLowerCase();
     let popupStyle = String(layout.popup_style || layout.table_style || defaultOverlayLayout.popup_style).toLowerCase();
+    let tableFontStyle = String(layout.table_font_style || defaultOverlayLayout.table_font_style).toLowerCase();
     let aliveColor = String(layout.alive_color || defaultOverlayLayout.alive_color);
     let finishedColor = String(layout.finished_color || defaultOverlayLayout.finished_color);
     let headerColor = String(layout.header_color || defaultOverlayLayout.header_color);
@@ -1235,9 +1228,9 @@ function normalizeLayout(layout){
     if(!["slide", "smooth", "pop", "slide_io", "fade_io", "none"].includes(top5AnimationStyle)) top5AnimationStyle = defaultOverlayLayout.top5_animation_style;
     if(!["slide", "smooth", "pop", "slide_io", "fade_io", "none"].includes(popupAnimationStyle)) popupAnimationStyle = defaultOverlayLayout.popup_animation_style;
     if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(tableStyle)) tableStyle = defaultOverlayLayout.table_style;
-    if(!Object.prototype.hasOwnProperty.call(tableFontFamilies, tableFontStyle)) tableFontStyle = defaultOverlayLayout.table_font_style;
     if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(top5Style)) top5Style = defaultOverlayLayout.top5_style;
     if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(popupStyle)) popupStyle = defaultOverlayLayout.popup_style;
+    if(!["rajdhani", "teko", "oswald", "orbitron", "barlow", "story_script", "lobster", "asset", "ewert"].includes(tableFontStyle)) tableFontStyle = defaultOverlayLayout.table_font_style;
     if(!["all", "split"].includes(dataColorMode)) dataColorMode = defaultOverlayLayout.data_color_mode;
     if(Number.isNaN(offsetX)) offsetX = defaultOverlayLayout.offset_x;
     if(Number.isNaN(offsetY)) offsetY = defaultOverlayLayout.offset_y;
@@ -1245,16 +1238,9 @@ function normalizeLayout(layout){
     if(Number.isNaN(top5OffsetY)) top5OffsetY = defaultOverlayLayout.top5_offset_y;
     if(Number.isNaN(tableWidth)) tableWidth = defaultOverlayLayout.table_width;
     if(Number.isNaN(tableRowHeight)) tableRowHeight = defaultOverlayLayout.table_row_height;
-    if(Number.isNaN(tableTextSize)) tableTextSize = defaultOverlayLayout.table_text_size;
-    if(Number.isNaN(tableHeaderTextSize)) tableHeaderTextSize = defaultOverlayLayout.table_header_text_size;
-    if(Number.isNaN(tableLogoSize)) tableLogoSize = defaultOverlayLayout.table_logo_size;
-    if(Number.isNaN(tableBarHeight)) tableBarHeight = defaultOverlayLayout.table_bar_height;
-    if(Number.isNaN(tableColRankWidth)) tableColRankWidth = defaultOverlayLayout.table_col_rank_width;
-    if(Number.isNaN(tableColTeamWidth)) tableColTeamWidth = defaultOverlayLayout.table_col_team_width;
-    if(Number.isNaN(tableColChickenWidth)) tableColChickenWidth = defaultOverlayLayout.table_col_chicken_width;
-    if(Number.isNaN(tableColKillsWidth)) tableColKillsWidth = defaultOverlayLayout.table_col_kills_width;
-    if(Number.isNaN(tableColTotalWidth)) tableColTotalWidth = defaultOverlayLayout.table_col_total_width;
-    if(Number.isNaN(tableColStatusWidth)) tableColStatusWidth = defaultOverlayLayout.table_col_status_width;
+    if(Number.isNaN(statusBarWidth)) statusBarWidth = defaultOverlayLayout.status_bar_width;
+    if(Number.isNaN(statusBarGap)) statusBarGap = defaultOverlayLayout.status_bar_gap;
+    if(Number.isNaN(rowBorderThickness)) rowBorderThickness = defaultOverlayLayout.row_border_thickness;
     if(Number.isNaN(top5Scale)) top5Scale = defaultOverlayLayout.top5_scale;
     if(Number.isNaN(popupScale)) popupScale = defaultOverlayLayout.popup_scale;
     if(Number.isNaN(mapTextSize)) mapTextSize = defaultOverlayLayout.map_text_size;
@@ -1262,16 +1248,9 @@ function normalizeLayout(layout){
     if(Number.isNaN(matchTextSize)) matchTextSize = defaultOverlayLayout.match_text_size;
     tableWidth = Math.max(240, Math.min(560, tableWidth));
     tableRowHeight = Math.max(24, Math.min(62, tableRowHeight));
-    tableTextSize = Math.max(8, Math.min(36, tableTextSize));
-    tableHeaderTextSize = Math.max(8, Math.min(28, tableHeaderTextSize));
-    tableLogoSize = Math.max(12, Math.min(44, tableLogoSize));
-    tableBarHeight = Math.max(6, Math.min(42, tableBarHeight));
-    tableColRankWidth = Math.max(12, Math.min(420, tableColRankWidth));
-    tableColTeamWidth = Math.max(12, Math.min(420, tableColTeamWidth));
-    tableColChickenWidth = Math.max(12, Math.min(420, tableColChickenWidth));
-    tableColKillsWidth = Math.max(12, Math.min(420, tableColKillsWidth));
-    tableColTotalWidth = Math.max(12, Math.min(420, tableColTotalWidth));
-    tableColStatusWidth = Math.max(12, Math.min(420, tableColStatusWidth));
+    statusBarWidth = Math.max(10, Math.min(100, statusBarWidth));
+    statusBarGap = Math.max(0, Math.min(20, statusBarGap));
+    rowBorderThickness = Math.max(0, Math.min(8, rowBorderThickness));
     top5Scale = Math.max(50, Math.min(180, top5Scale));
     popupScale = Math.max(50, Math.min(180, popupScale));
     mapTextSize = Math.max(8, Math.min(64, mapTextSize));
@@ -1293,17 +1272,9 @@ function normalizeLayout(layout){
         top5_offset_y: top5OffsetY,
         table_width: tableWidth,
         table_row_height: tableRowHeight,
-        table_text_size: tableTextSize,
-        table_header_text_size: tableHeaderTextSize,
-        table_logo_size: tableLogoSize,
-        table_bar_height: tableBarHeight,
-        table_font_style: tableFontStyle,
-        table_col_rank_width: tableColRankWidth,
-        table_col_team_width: tableColTeamWidth,
-        table_col_chicken_width: tableColChickenWidth,
-        table_col_kills_width: tableColKillsWidth,
-        table_col_total_width: tableColTotalWidth,
-        table_col_status_width: tableColStatusWidth,
+        status_bar_width: statusBarWidth,
+        status_bar_gap: statusBarGap,
+        row_border_thickness: rowBorderThickness,
         top5_scale: top5Scale,
         popup_scale: popupScale,
         animation_style: animationStyle,
@@ -1312,6 +1283,7 @@ function normalizeLayout(layout){
         table_style: tableStyle,
         top5_style: top5Style,
         popup_style: popupStyle,
+        table_font_style: tableFontStyle,
         alive_color: aliveColor,
         finished_color: finishedColor,
         header_color: headerColor,
@@ -1351,9 +1323,9 @@ function normalizeLayout(layout){
     };
 }
 
-function shouldShowTable(layout, aliveTeams){
+function shouldShowTable(layout, aliveTeams, winChanceVisible){
     if(!layout.table_visible) return false;
-    if(!layout.auto_hide_table_top4 || !layout.show_win_chance) return true;
+    if(!layout.auto_hide_table_top4 || !winChanceVisible) return true;
     let alive = parseInt(aliveTeams, 10);
     return !Number.isFinite(alive) || alive > 4;
 }
@@ -1370,7 +1342,9 @@ function applyOverlayLayout(layout, aliveTeams){
     let mapText = document.getElementById("mapText");
     let matchText = document.getElementById("matchText");
 
-    if(tableWrapper) tableWrapper.style.display = shouldShowTable(clean, aliveTeams) ? "" : "none";
+    if(tableWrapper) tableWrapper.dataset.visible = shouldShowTable(
+        clean, aliveTeams, document.querySelectorAll("#winChance .win-card").length > 0
+    ) ? "true" : "false";
 
     table.style.left = "auto";
     table.style.right = "auto";
@@ -1387,12 +1361,11 @@ function applyOverlayLayout(layout, aliveTeams){
     table.style.color = clean.font_color || defaultOverlayLayout.font_color;
     table.style.width = clean.table_width + "px";
 
-    let maxRowFontSize = Math.max(8, clean.table_row_height - 8);
-    let rowFontSize = Math.max(8, Math.min(maxRowFontSize, clean.table_text_size));
-    let headerFontSize = Math.max(8, Math.min(28, clean.table_header_text_size));
-    let logoSize = Math.max(12, Math.min(clean.table_row_height - 2, clean.table_logo_size));
-    let barHeight = Math.max(6, Math.min(clean.table_row_height - 4, clean.table_bar_height));
-    let padX = Math.max(2, Math.min(8, Math.round(clean.table_row_height * 0.14)));
+    let rowFontSize = Math.max(10, Math.min(18, Math.round(clean.table_row_height * 0.38)));
+    let headerFontSize = Math.max(9, Math.min(16, rowFontSize - 1));
+    let logoSize = Math.max(14, Math.min(30, clean.table_row_height - 14));
+    let barHeight = Math.max(10, Math.min(28, clean.table_row_height - 18));
+    let padX = Math.max(6, Math.min(12, Math.round(clean.table_row_height * 0.24)));
     let headerScale = Math.max(0.72, Math.min(1.55, ((clean.table_width / defaultOverlayLayout.table_width) + (clean.table_row_height / defaultOverlayLayout.table_row_height)) / 2));
     let mapImageWidth = Math.max(92, Math.min(230, Math.round(130 * headerScale)));
     let matchTextWidth = Math.max(54, Math.min(112, Math.round(74 * headerScale)));
@@ -1409,9 +1382,10 @@ function applyOverlayLayout(layout, aliveTeams){
     document.documentElement.style.setProperty("--table-header-font-size", headerFontSize + "px");
     document.documentElement.style.setProperty("--table-logo-size", logoSize + "px");
     document.documentElement.style.setProperty("--table-bar-height", barHeight + "px");
+    document.documentElement.style.setProperty("--status-bar-width", clean.status_bar_width + "px");
+    document.documentElement.style.setProperty("--status-bar-gap", clean.status_bar_gap + "px");
+    document.documentElement.style.setProperty("--row-border-thickness", clean.row_border_thickness + "px");
     document.documentElement.style.setProperty("--table-row-pad-x", padX + "px");
-    document.documentElement.style.setProperty("--table-team-gap", "0px");
-    document.documentElement.style.setProperty("--table-font-family", tableFontFamilies[clean.table_font_style] || tableFontFamilies.rajdhani);
     document.documentElement.style.setProperty("--top5-scale", (clean.top5_scale / 100).toFixed(2));
     document.documentElement.style.setProperty("--popup-scale", (clean.popup_scale / 100).toFixed(2));
     document.documentElement.style.setProperty("--popup-scale-hidden", ((clean.popup_scale / 100) * 0.9).toFixed(2));
@@ -1446,6 +1420,7 @@ function applyOverlayLayout(layout, aliveTeams){
     document.documentElement.style.setProperty("--top5-text-color", clean.top5_text_color || defaultOverlayLayout.top5_text_color);
     document.documentElement.style.setProperty("--style-accent-color", clean.style_color || defaultOverlayLayout.style_color);
     document.documentElement.style.setProperty("--style-accent-soft", `color-mix(in srgb, ${clean.style_color || defaultOverlayLayout.style_color} 18%, transparent)`);
+    document.body.dataset.tableFont = clean.table_font_style;
     if(matchBar){
         matchBar.style.display = clean.show_header ? "flex" : "none";
         matchBar.style.background = clean.header_color || defaultOverlayLayout.header_color;
@@ -1498,27 +1473,7 @@ function applyTableColumns(layout){
         visibleColumns = tableColumns;
     }
 
-    let columnWidths = visibleColumns.map(column => {
-        let width = parseInt(layout[column.widthKey] || column.defaultWidth, 10);
-        if(Number.isNaN(width)) width = column.defaultWidth;
-        return {
-            column,
-            width: Math.max(12, Math.min(420, width))
-        };
-    });
-    let fixedWidth = columnWidths
-        .filter(item => !item.column.flex)
-        .reduce((total, item) => total + item.width, 0);
-    let rowPadX = Math.max(2, Math.min(8, Math.round((layout.table_row_height || defaultOverlayLayout.table_row_height) * 0.14)));
-    let contentWidth = Math.max(60, (layout.table_width || defaultOverlayLayout.table_width) - (rowPadX * 2));
-    let flexCount = Math.max(1, columnWidths.filter(item => item.column.flex).length);
-    let availableFlexWidth = Math.max(12, Math.floor((contentWidth - fixedWidth) / flexCount));
-    let gridTemplate = columnWidths.map(item => {
-        if(item.column.flex){
-            return `minmax(${Math.min(item.width, availableFlexWidth)}px,1fr)`;
-        }
-        return item.width + "px";
-    }).join(" ");
+    let gridTemplate = visibleColumns.map(column => column.width).join(" ");
     document.querySelector(".header").style.gridTemplateColumns = gridTemplate;
     document.querySelectorAll(".row").forEach(row=>{
         row.style.gridTemplateColumns = gridTemplate;
@@ -1827,7 +1782,11 @@ if (incomingLayout) {
     lastValidOverlayLayout = incomingLayout;
 }
 
-let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout, data.alive_teams);
+let layout = normalizeLayout(incomingLayout || defaultOverlayLayout);
+    const teamLogos = data.team_logos || {};
+    // Render Win Chance first so Top 4 auto-hide follows its real visibility.
+    renderWinChances(data.win_chances || [], layout, teamLogos);
+    layout = applyOverlayLayout(layout, data.alive_teams);
     let previousPositions = getRowPositions();
 
     // ðŸ”¥ MATCH NO UPDATE (ONLY ADDITION)
@@ -1843,9 +1802,6 @@ let layout = applyOverlayLayout(incomingLayout || defaultOverlayLayout, data.ali
 
         return (b.kills||0)-(a.kills||0);
     });
-    const teamLogos = data.team_logos || {};
-    renderWinChances(data.win_chances || [], layout, teamLogos);
-
     let html="";
 
     teams.forEach((t,i)=>{
@@ -2001,5 +1957,3 @@ fetchData();
 
 
 
-t e s t  
- 
