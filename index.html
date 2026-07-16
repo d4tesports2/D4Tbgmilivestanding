@@ -31,7 +31,17 @@
     --table-bar-height:14px;
     --status-bar-width:10px;
     --status-bar-gap:2px;
+    --status-bar-height:14px;
+    --status-bar-radius:2px;
+    --status-bar-animation-speed:450ms;
     --row-border-thickness:1px;
+    --row-divider-width:1px;
+    --table-col-rank-width:22px;
+    --table-col-team-width:220px;
+    --table-col-chicken-width:30px;
+    --table-col-kills-width:30px;
+    --table-col-total-width:32px;
+    --table-col-status-width:45px;
     --table-row-pad-x:8px;
     --top5-scale:1;
     --popup-scale:1;
@@ -611,7 +621,7 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
     font-size:var(--table-row-font-size);
     transition:transform 0.45s cubic-bezier(.2,.8,.2,1), opacity 0.35s ease, filter 0.35s ease;
     will-change:transform, opacity;
-    border-bottom:var(--row-border-thickness) solid rgba(255,255,255,0.18);
+    border-bottom:var(--row-divider-width) solid rgba(255,255,255,0.18);
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
@@ -666,7 +676,9 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
 
 .bar{
     width:var(--status-bar-width);
-    height:var(--table-bar-height);
+    height:var(--status-bar-height);
+    border-radius:var(--status-bar-radius);
+    transition:width var(--status-bar-animation-speed) ease, height var(--status-bar-animation-speed) ease, border-radius var(--status-bar-animation-speed) ease, background var(--status-bar-animation-speed) ease;
     background:var(--status-bar-finished);
 }
 .bar.active{
@@ -970,6 +982,20 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
     background:var(--status-bar-finished);
 }
 
+.container[data-table-style="modern_glass"]{
+    background:linear-gradient(135deg,rgba(15,23,42,.82),rgba(30,41,59,.52));
+    border:1px solid rgba(226,232,240,.55); border-radius:18px; backdrop-filter:blur(16px);
+    box-shadow:0 18px 48px rgba(2,6,23,.62),inset 0 1px rgba(255,255,255,.2);
+}
+.container[data-table-style="modern_glass"] #matchBar,.container[data-table-style="modern_glass"] .header{background:linear-gradient(90deg,rgba(51,65,85,.92),rgba(71,85,105,.7));clip-path:none;}
+.container[data-table-style="modern_glass"] .row{background:rgba(15,23,42,.58);border-color:rgba(226,232,240,.18);}
+.container[data-table-style="esports_neon_pro"]{border:2px solid #00f6ff;border-radius:2px;box-shadow:0 0 10px #00f6ff,0 0 34px rgba(0,246,255,.48),0 18px 42px rgba(0,0,0,.82);}
+.container[data-table-style="esports_neon_pro"] #matchBar,.container[data-table-style="esports_neon_pro"] .header{background:linear-gradient(90deg,#061b38,#10115b,#310747);clip-path:none;color:#fff;text-shadow:0 0 9px rgba(255,255,255,.75);}
+.container[data-table-style="esports_neon_pro"] .row{background:linear-gradient(90deg,rgba(5,16,39,.96),rgba(15,31,83,.9));border-color:rgba(0,246,255,.58);box-shadow:inset 4px 0 #00f6ff;}
+.container[data-table-style="cyber_dark"]{border:1px solid #a3e635;border-radius:0;background:#070b12;box-shadow:0 0 26px rgba(163,230,53,.22);}
+.container[data-table-style="cyber_dark"] #matchBar,.container[data-table-style="cyber_dark"] .header{background:linear-gradient(90deg,#17230a,#111827);clip-path:none;color:#d9f99d;}
+.container[data-table-style="cyber_dark"] .row{background:linear-gradient(90deg,#0c141c,#111827);border-color:rgba(163,230,53,.24);}
+
 .row.anim-pop{
     animation:rowPop 0.38s ease;
 }
@@ -1090,9 +1116,24 @@ const defaultOverlayLayout = {
     top5_offset_y: 0,
     table_width: 320,
     table_row_height: 34,
+    table_text_size: 13,
+    table_header_text_size: 12,
+    table_logo_size: 22,
+    table_bar_height: 14,
     status_bar_width: 10,
     status_bar_gap: 2,
+    status_bar_height: 14,
+    status_bar_radius: 2,
+    status_bar_animation_speed: 450,
     row_border_thickness: 1,
+    row_divider_width: 1,
+    table_col_rank_width: 22,
+    table_col_team_width: 220,
+    table_col_chicken_width: 30,
+    table_col_kills_width: 30,
+    table_col_total_width: 32,
+    table_col_status_width: 45,
+    debug_overlay_layout: false,
     top5_scale: 100,
     popup_scale: 100,
     animation_style: "slide",
@@ -1141,12 +1182,12 @@ const defaultOverlayLayout = {
 };
 
 const tableColumns = [
-    { field: "show_rank", col: "rank", width: "18px" },
-    { field: "show_team", col: "team", width: "1fr" },
-    { field: "show_chicken", col: "chicken", width: "28px" },
-    { field: "show_kills", col: "kills", width: "25px" },
-    { field: "show_total", col: "total", width: "30px" },
-    { field: "show_status", col: "status", width: "40px" }
+    { field: "show_rank", col: "rank", widthKey: "table_col_rank_width" },
+    { field: "show_team", col: "team", widthKey: "table_col_team_width" },
+    { field: "show_chicken", col: "chicken", widthKey: "table_col_chicken_width" },
+    { field: "show_kills", col: "kills", widthKey: "table_col_kills_width" },
+    { field: "show_total", col: "total", widthKey: "table_col_total_width" },
+    { field: "show_status", col: "status", widthKey: "table_col_status_width" }
 ];
 
 function layoutBool(layout, key){
@@ -1171,9 +1212,18 @@ function normalizeLayout(layout){
     let top5OffsetY = parseInt(layout.top5_offset_y || defaultOverlayLayout.top5_offset_y, 10);
     let tableWidth = parseInt(layout.table_width || defaultOverlayLayout.table_width, 10);
     let tableRowHeight = parseInt(layout.table_row_height || defaultOverlayLayout.table_row_height, 10);
+    let tableTextSize = parseInt(layout.table_text_size || defaultOverlayLayout.table_text_size, 10);
+    let tableHeaderTextSize = parseInt(layout.table_header_text_size || defaultOverlayLayout.table_header_text_size, 10);
+    let tableLogoSize = parseInt(layout.table_logo_size || defaultOverlayLayout.table_logo_size, 10);
+    let tableBarHeight = parseInt(layout.table_bar_height || defaultOverlayLayout.table_bar_height, 10);
     let statusBarWidth = parseInt(layout.status_bar_width ?? defaultOverlayLayout.status_bar_width, 10);
     let statusBarGap = parseInt(layout.status_bar_gap ?? defaultOverlayLayout.status_bar_gap, 10);
+    let statusBarHeight = parseInt(layout.status_bar_height ?? defaultOverlayLayout.status_bar_height, 10);
+    let statusBarRadius = parseInt(layout.status_bar_radius ?? defaultOverlayLayout.status_bar_radius, 10);
+    let statusBarAnimationSpeed = parseInt(layout.status_bar_animation_speed ?? defaultOverlayLayout.status_bar_animation_speed, 10);
     let rowBorderThickness = parseInt(layout.row_border_thickness ?? defaultOverlayLayout.row_border_thickness, 10);
+    let rowDividerWidth = parseInt(layout.row_divider_width ?? defaultOverlayLayout.row_divider_width, 10);
+    let columnWidths = Object.fromEntries(tableColumns.map(column => [column.widthKey, parseInt(layout[column.widthKey] ?? defaultOverlayLayout[column.widthKey], 10)]));
     let top5Scale = parseInt(layout.top5_scale || defaultOverlayLayout.top5_scale, 10);
     let popupScale = parseInt(layout.popup_scale || defaultOverlayLayout.popup_scale, 10);
     let animationStyle = String(layout.animation_style || defaultOverlayLayout.animation_style).toLowerCase();
@@ -1211,6 +1261,7 @@ function normalizeLayout(layout){
     let showWinChance = layoutBool(layout, "show_win_chance");
     let tableVisible = layoutBool(layout, "table_visible");
     let autoHideTableTop4 = layoutBool(layout, "auto_hide_table_top4");
+    let debugOverlayLayout = layoutBool(layout, "debug_overlay_layout");
     let showRank = layoutBool(layout, "show_rank");
     let showTeam = layoutBool(layout, "show_team");
     let showChicken = layoutBool(layout, "show_chicken");
@@ -1238,9 +1289,17 @@ function normalizeLayout(layout){
     if(Number.isNaN(top5OffsetY)) top5OffsetY = defaultOverlayLayout.top5_offset_y;
     if(Number.isNaN(tableWidth)) tableWidth = defaultOverlayLayout.table_width;
     if(Number.isNaN(tableRowHeight)) tableRowHeight = defaultOverlayLayout.table_row_height;
+    if(Number.isNaN(tableTextSize)) tableTextSize = defaultOverlayLayout.table_text_size;
+    if(Number.isNaN(tableHeaderTextSize)) tableHeaderTextSize = defaultOverlayLayout.table_header_text_size;
+    if(Number.isNaN(tableLogoSize)) tableLogoSize = defaultOverlayLayout.table_logo_size;
+    if(Number.isNaN(tableBarHeight)) tableBarHeight = defaultOverlayLayout.table_bar_height;
     if(Number.isNaN(statusBarWidth)) statusBarWidth = defaultOverlayLayout.status_bar_width;
     if(Number.isNaN(statusBarGap)) statusBarGap = defaultOverlayLayout.status_bar_gap;
+    if(Number.isNaN(statusBarHeight)) statusBarHeight = defaultOverlayLayout.status_bar_height;
+    if(Number.isNaN(statusBarRadius)) statusBarRadius = defaultOverlayLayout.status_bar_radius;
+    if(Number.isNaN(statusBarAnimationSpeed)) statusBarAnimationSpeed = defaultOverlayLayout.status_bar_animation_speed;
     if(Number.isNaN(rowBorderThickness)) rowBorderThickness = defaultOverlayLayout.row_border_thickness;
+    if(Number.isNaN(rowDividerWidth)) rowDividerWidth = defaultOverlayLayout.row_divider_width;
     if(Number.isNaN(top5Scale)) top5Scale = defaultOverlayLayout.top5_scale;
     if(Number.isNaN(popupScale)) popupScale = defaultOverlayLayout.popup_scale;
     if(Number.isNaN(mapTextSize)) mapTextSize = defaultOverlayLayout.map_text_size;
@@ -1251,6 +1310,18 @@ function normalizeLayout(layout){
     statusBarWidth = Math.max(10, Math.min(100, statusBarWidth));
     statusBarGap = Math.max(0, Math.min(20, statusBarGap));
     rowBorderThickness = Math.max(0, Math.min(8, rowBorderThickness));
+    statusBarHeight = Math.max(4, Math.min(40, statusBarHeight));
+    statusBarRadius = Math.max(0, Math.min(20, statusBarRadius));
+    statusBarAnimationSpeed = Math.max(0, Math.min(3000, statusBarAnimationSpeed));
+    rowDividerWidth = Math.max(0, Math.min(8, rowDividerWidth));
+    tableTextSize = Math.max(8, Math.min(36, tableTextSize));
+    tableHeaderTextSize = Math.max(8, Math.min(28, tableHeaderTextSize));
+    tableLogoSize = Math.max(12, Math.min(44, tableLogoSize));
+    tableBarHeight = Math.max(4, Math.min(40, tableBarHeight));
+    Object.keys(columnWidths).forEach(key => {
+        if(Number.isNaN(columnWidths[key])) columnWidths[key] = defaultOverlayLayout[key];
+        columnWidths[key] = Math.max(12, Math.min(420, columnWidths[key]));
+    });
     top5Scale = Math.max(50, Math.min(180, top5Scale));
     popupScale = Math.max(50, Math.min(180, popupScale));
     mapTextSize = Math.max(8, Math.min(64, mapTextSize));
@@ -1272,9 +1343,18 @@ function normalizeLayout(layout){
         top5_offset_y: top5OffsetY,
         table_width: tableWidth,
         table_row_height: tableRowHeight,
+        table_text_size: tableTextSize,
+        table_header_text_size: tableHeaderTextSize,
+        table_logo_size: tableLogoSize,
+        table_bar_height: tableBarHeight,
         status_bar_width: statusBarWidth,
         status_bar_gap: statusBarGap,
+        status_bar_height: statusBarHeight,
+        status_bar_radius: statusBarRadius,
+        status_bar_animation_speed: statusBarAnimationSpeed,
         row_border_thickness: rowBorderThickness,
+        row_divider_width: rowDividerWidth,
+        ...columnWidths,
         top5_scale: top5Scale,
         popup_scale: popupScale,
         animation_style: animationStyle,
@@ -1312,6 +1392,7 @@ function normalizeLayout(layout){
         show_win_chance: showWinChance,
         table_visible: tableVisible,
         auto_hide_table_top4: autoHideTableTop4,
+        debug_overlay_layout: debugOverlayLayout,
         show_rank: showRank,
         show_team: showTeam,
         show_chicken: showChicken,
@@ -1361,10 +1442,10 @@ function applyOverlayLayout(layout, aliveTeams){
     table.style.color = clean.font_color || defaultOverlayLayout.font_color;
     table.style.width = clean.table_width + "px";
 
-    let rowFontSize = Math.max(10, Math.min(18, Math.round(clean.table_row_height * 0.38)));
-    let headerFontSize = Math.max(9, Math.min(16, rowFontSize - 1));
-    let logoSize = Math.max(14, Math.min(30, clean.table_row_height - 14));
-    let barHeight = Math.max(10, Math.min(28, clean.table_row_height - 18));
+    let rowFontSize = clean.table_text_size;
+    let headerFontSize = clean.table_header_text_size;
+    let logoSize = clean.table_logo_size;
+    let barHeight = clean.table_bar_height;
     let padX = Math.max(6, Math.min(12, Math.round(clean.table_row_height * 0.24)));
     let headerScale = Math.max(0.72, Math.min(1.55, ((clean.table_width / defaultOverlayLayout.table_width) + (clean.table_row_height / defaultOverlayLayout.table_row_height)) / 2));
     let mapImageWidth = Math.max(92, Math.min(230, Math.round(130 * headerScale)));
@@ -1384,7 +1465,12 @@ function applyOverlayLayout(layout, aliveTeams){
     document.documentElement.style.setProperty("--table-bar-height", barHeight + "px");
     document.documentElement.style.setProperty("--status-bar-width", clean.status_bar_width + "px");
     document.documentElement.style.setProperty("--status-bar-gap", clean.status_bar_gap + "px");
+    document.documentElement.style.setProperty("--status-bar-height", clean.status_bar_height + "px");
+    document.documentElement.style.setProperty("--status-bar-radius", clean.status_bar_radius + "px");
+    document.documentElement.style.setProperty("--status-bar-animation-speed", clean.status_bar_animation_speed + "ms");
     document.documentElement.style.setProperty("--row-border-thickness", clean.row_border_thickness + "px");
+    document.documentElement.style.setProperty("--row-divider-width", clean.row_divider_width + "px");
+    tableColumns.forEach(column => document.documentElement.style.setProperty(`--${column.widthKey.replaceAll("_", "-")}`, clean[column.widthKey] + "px"));
     document.documentElement.style.setProperty("--table-row-pad-x", padX + "px");
     document.documentElement.style.setProperty("--top5-scale", (clean.top5_scale / 100).toFixed(2));
     document.documentElement.style.setProperty("--popup-scale", (clean.popup_scale / 100).toFixed(2));
@@ -1454,7 +1540,13 @@ function applyOverlayLayout(layout, aliveTeams){
         matchText.style.height = clean.map_text_height + "px";
         matchText.style.setProperty("font-size", clean.match_text_size + "px", "important");
     }
-    console.log("Overlay layout:", clean);
+    if(clean.debug_overlay_layout){
+        console.groupCollapsed("D4T overlay layout debug");
+        tableColumns.forEach(column => console.log(`${column.widthKey}: Python/JSON=${clean[column.widthKey]}, CSS=${getComputedStyle(document.documentElement).getPropertyValue(`--${column.widthKey.replaceAll("_", "-")}`).trim()}, DOM=${getComputedStyle(table).width}`));
+        console.log("status_bar_width:", clean.status_bar_width, getComputedStyle(document.documentElement).getPropertyValue("--status-bar-width").trim());
+        console.log("row_divider_width:", clean.row_divider_width, getComputedStyle(document.documentElement).getPropertyValue("--row-divider-width").trim());
+        console.groupEnd();
+    }
     table.dataset.animation = clean.animation_style;
     table.dataset.tableStyle = clean.table_style;
     table.dataset.dataColorMode = clean.data_color_mode;
@@ -1473,7 +1565,7 @@ function applyTableColumns(layout){
         visibleColumns = tableColumns;
     }
 
-    let gridTemplate = visibleColumns.map(column => column.width).join(" ");
+    let gridTemplate = visibleColumns.map(column => `${layout[column.widthKey]}px`).join(" ");
     document.querySelector(".header").style.gridTemplateColumns = gridTemplate;
     document.querySelectorAll(".row").forEach(row=>{
         row.style.gridTemplateColumns = gridTemplate;
@@ -1486,6 +1578,67 @@ function applyTableColumns(layout){
         });
     });
 }
+
+/* Layout contract bridge: keeps every legacy-compatible template in sync with
+   the Python overlay_layout payload. */
+const d4tNormalizeLayoutBase = normalizeLayout;
+normalizeLayout = function(layout){
+    const clean = d4tNormalizeLayoutBase(layout);
+    const raw = layout || {};
+    const number = (key, fallback, min, max) => {
+        let value = parseInt(raw[key] ?? fallback, 10);
+        if(Number.isNaN(value)) value = fallback;
+        return Math.max(min, Math.min(max, value));
+    };
+    clean.table_text_size = number("table_text_size", 13, 8, 36);
+    clean.table_header_text_size = number("table_header_text_size", 12, 8, 28);
+    clean.table_logo_size = number("table_logo_size", 22, 12, 44);
+    clean.table_bar_height = number("table_bar_height", 14, 4, 40);
+    clean.status_bar_height = number("status_bar_height", 14, 4, 40);
+    clean.status_bar_radius = number("status_bar_radius", 2, 0, 20);
+    clean.status_bar_animation_speed = number("status_bar_animation_speed", 450, 0, 3000);
+    clean.row_divider_width = number("row_divider_width", raw.row_border_thickness ?? 1, 0, 8);
+    tableColumns.forEach(column => clean[column.widthKey] = number(column.widthKey, defaultOverlayLayout[column.widthKey], 12, 420));
+    ["table_style", "top5_style", "popup_style"].forEach(key => {
+        if(["modern_glass", "esports_neon_pro", "cyber_dark"].includes(raw[key])) clean[key] = raw[key];
+    });
+    clean.debug_overlay_layout = layoutBool(raw, "debug_overlay_layout");
+    return clean;
+};
+const d4tApplyOverlayLayoutBase = applyOverlayLayout;
+applyOverlayLayout = function(layout, aliveTeams){
+    const clean = d4tApplyOverlayLayoutBase(layout, aliveTeams);
+    const root = document.documentElement.style;
+    root.setProperty("--table-row-font-size", clean.table_text_size + "px");
+    root.setProperty("--table-header-font-size", clean.table_header_text_size + "px");
+    root.setProperty("--table-logo-size", clean.table_logo_size + "px");
+    root.setProperty("--table-bar-height", clean.table_bar_height + "px");
+    root.setProperty("--status-bar-height", clean.status_bar_height + "px");
+    root.setProperty("--status-bar-radius", clean.status_bar_radius + "px");
+    root.setProperty("--status-bar-animation-speed", clean.status_bar_animation_speed + "ms");
+    root.setProperty("--row-divider-width", clean.row_divider_width + "px");
+    tableColumns.forEach(column => root.setProperty(`--${column.widthKey.replaceAll("_", "-")}`, clean[column.widthKey] + "px"));
+    document.querySelectorAll("#teams .row").forEach(row => row.style.borderBottomWidth = clean.row_divider_width + "px");
+    document.querySelectorAll(".alive-box .bar").forEach(bar => {
+        bar.style.height = clean.status_bar_height + "px";
+        bar.style.borderRadius = clean.status_bar_radius + "px";
+        bar.style.transitionDuration = clean.status_bar_animation_speed + "ms";
+    });
+    if(clean.debug_overlay_layout) {
+        console.groupCollapsed("D4T layout debug");
+        tableColumns.forEach(column => console.log(`${column.widthKey}: JSON=${clean[column.widthKey]} CSS=${getComputedStyle(document.documentElement).getPropertyValue(`--${column.widthKey.replaceAll("_", "-")}`).trim()} DOM=${getComputedStyle(document.querySelector(".row") || document.querySelector(".header")).gridTemplateColumns}`));
+        console.groupEnd();
+    }
+    return clean;
+};
+applyTableColumns = function(layout){
+    let visibleColumns = tableColumns.filter(column => layout[column.field]);
+    if(!visibleColumns.length) visibleColumns = tableColumns;
+    const gridTemplate = visibleColumns.map(column => `${layout[column.widthKey]}px`).join(" ");
+    document.querySelector(".header").style.gridTemplateColumns = gridTemplate;
+    document.querySelectorAll(".row").forEach(row => row.style.gridTemplateColumns = gridTemplate);
+    tableColumns.forEach(column => document.querySelectorAll(`[data-col="${column.col}"]`).forEach(element => element.style.display = visibleColumns.includes(column) ? "" : "none"));
+};
 
 function rowKey(team){
     return String(team || "").replace(/[^a-zA-Z0-9_-]/g, "_");
