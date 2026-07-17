@@ -1411,6 +1411,15 @@ function shouldShowTable(layout, aliveTeams){
     return !Number.isFinite(alive) || alive > 4;
 }
 
+function tableAliveTeams(data){
+    const activeRows = Array.isArray(data && data.teams) ? data.teams.filter(team =>
+        Number(team.alive) > 0 && Number(team.finished) !== 1
+    ).length : 0;
+    // The team rows are authoritative for the Top-4 presentation when the
+    // counter OCR is delayed or stale.  Do not override normal higher counts.
+    return activeRows > 0 && activeRows <= 4 ? activeRows : data.alive_teams;
+}
+
 function applyOverlayLayout(layout, aliveTeams){
     let clean = normalizeLayout(layout);
     let table = document.querySelector(".container");
@@ -1937,7 +1946,7 @@ let layout = normalizeLayout(incomingLayout || defaultOverlayLayout);
     const teamLogos = data.team_logos || {};
     // Render Win Chance first so Top 4 auto-hide follows its real visibility.
     renderWinChances(data.win_chances || [], layout, teamLogos);
-    layout = applyOverlayLayout(layout, data.alive_teams);
+    layout = applyOverlayLayout(layout, tableAliveTeams(data));
     let previousPositions = getRowPositions();
 
     // ðŸ”¥ MATCH NO UPDATE (ONLY ADDITION)
@@ -1974,7 +1983,7 @@ let layout = normalizeLayout(incomingLayout || defaultOverlayLayout);
     });
 
     document.getElementById("teams").innerHTML = html;
-    layout = applyOverlayLayout(layout, data.alive_teams);
+    layout = applyOverlayLayout(layout, tableAliveTeams(data));
     applyTableColumns(layout);
     animateTableRows(previousPositions, layout.animation_style);
 
