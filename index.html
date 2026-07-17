@@ -1404,9 +1404,9 @@ function normalizeLayout(layout){
     };
 }
 
-function shouldShowTable(layout, aliveTeams, winChanceVisible){
+function shouldShowTable(layout, aliveTeams){
     if(!layout.table_visible) return false;
-    if(!layout.auto_hide_table_top4 || !winChanceVisible) return true;
+    if(!layout.auto_hide_table_top4) return true;
     let alive = parseInt(aliveTeams, 10);
     return !Number.isFinite(alive) || alive > 4;
 }
@@ -1423,9 +1423,7 @@ function applyOverlayLayout(layout, aliveTeams){
     let mapText = document.getElementById("mapText");
     let matchText = document.getElementById("matchText");
 
-    if(tableWrapper) tableWrapper.dataset.visible = shouldShowTable(
-        clean, aliveTeams, document.querySelectorAll("#winChance .win-card").length > 0
-    ) ? "true" : "false";
+    if(tableWrapper) tableWrapper.dataset.visible = shouldShowTable(clean, aliveTeams) ? "true" : "false";
 
     table.style.left = "auto";
     table.style.right = "auto";
