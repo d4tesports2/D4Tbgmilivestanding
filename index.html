@@ -18,6 +18,8 @@
     --popup-bg: linear-gradient(90deg,#7c3aed,#9333ea);
     --data-left-bg:#f7f7f2;
     --data-right-bg:#08272a;
+    --data-left-font-color:#ffffff;
+    --data-right-font-color:#ffffff;
     --map-text-color:#ffffff;
     --popup-text-color:#ffffff;
     --top5-text-color:#ffffff;
@@ -707,6 +709,36 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
     background:var(--data-right-bg);
 }
 
+.container[data-data-color-mode="split"] .header [data-col="rank"],
+.container[data-data-color-mode="split"] .header [data-col="team"]{
+    background:var(--data-left-bg);
+}
+
+.container[data-data-color-mode="split"] .header [data-col="chicken"],
+.container[data-data-color-mode="split"] .header [data-col="kills"],
+.container[data-data-color-mode="split"] .header [data-col="total"],
+.container[data-data-color-mode="split"] .header [data-col="status"]{
+    background:var(--data-right-bg);
+}
+
+.container[data-data-color-mode="split"] .row [data-col="rank"],
+.container[data-data-color-mode="split"] .row [data-col="team"],
+.container[data-data-color-mode="split"] .header [data-col="rank"],
+.container[data-data-color-mode="split"] .header [data-col="team"]{
+    color:var(--data-left-font-color);
+}
+
+.container[data-data-color-mode="split"] .row [data-col="chicken"],
+.container[data-data-color-mode="split"] .row [data-col="kills"],
+.container[data-data-color-mode="split"] .row [data-col="total"],
+.container[data-data-color-mode="split"] .row [data-col="status"],
+.container[data-data-color-mode="split"] .header [data-col="chicken"],
+.container[data-data-color-mode="split"] .header [data-col="kills"],
+.container[data-data-color-mode="split"] .header [data-col="total"],
+.container[data-data-color-mode="split"] .header [data-col="status"]{
+    color:var(--data-right-font-color);
+}
+
 .container[data-data-color-mode="split"] .row [data-col="rank"]{
     justify-content:center;
 }
@@ -1147,6 +1179,8 @@ const defaultOverlayLayout = {
     finished_color: "linear-gradient(100deg,#111827 0%,#030712 100%)",
     header_color: "linear-gradient(100deg,#c084fc 0%,#7c3aed 48%,#4c1d95 100%)",
     font_color: "#ffffff",
+    table_font_left_color: "#ffffff",
+    table_font_right_color: "#ffffff",
     status_bar_color: "#00ff9d",
     finished_status_bar_color: "#ef4444",
     top5_color: "linear-gradient(90deg,rgba(57, 0, 117, 1) 0%, rgba(89, 0, 153, 1) 52%, rgba(75, 0, 130, 1) 100%)",
@@ -1237,6 +1271,8 @@ function normalizeLayout(layout){
     let finishedColor = String(layout.finished_color || defaultOverlayLayout.finished_color);
     let headerColor = String(layout.header_color || defaultOverlayLayout.header_color);
     let fontColor = String(layout.font_color || defaultOverlayLayout.font_color);
+    let tableFontLeftColor = String(layout.table_font_left_color || defaultOverlayLayout.table_font_left_color);
+    let tableFontRightColor = String(layout.table_font_right_color || defaultOverlayLayout.table_font_right_color);
     let statusBarColor = String(layout.status_bar_color || defaultOverlayLayout.status_bar_color);
     let finishedStatusBarColor = String(layout.finished_status_bar_color || defaultOverlayLayout.finished_status_bar_color);
     let top5Color = String(layout.top5_color || defaultOverlayLayout.top5_color);
@@ -1368,6 +1404,8 @@ function normalizeLayout(layout){
         finished_color: finishedColor,
         header_color: headerColor,
         font_color: fontColor,
+        table_font_left_color: tableFontLeftColor,
+        table_font_right_color: tableFontRightColor,
         status_bar_color: statusBarColor,
         finished_status_bar_color: finishedStatusBarColor,
         top5_color: top5Color,
@@ -1508,6 +1546,8 @@ function applyOverlayLayout(layout, aliveTeams){
     document.documentElement.style.setProperty("--popup-bg", clean.popup_color || defaultOverlayLayout.popup_color);
     document.documentElement.style.setProperty("--data-left-bg", clean.data_left_color || defaultOverlayLayout.data_left_color);
     document.documentElement.style.setProperty("--data-right-bg", clean.data_right_color || defaultOverlayLayout.data_right_color);
+    document.documentElement.style.setProperty("--data-left-font-color", clean.table_font_left_color || defaultOverlayLayout.table_font_left_color);
+    document.documentElement.style.setProperty("--data-right-font-color", clean.table_font_right_color || defaultOverlayLayout.table_font_right_color);
     document.documentElement.style.setProperty("--map-text-color", clean.map_text_color || defaultOverlayLayout.map_text_color);
     document.documentElement.style.setProperty("--popup-text-color", clean.popup_text_color || defaultOverlayLayout.popup_text_color);
     document.documentElement.style.setProperty("--top5-text-color", clean.top5_text_color || defaultOverlayLayout.top5_text_color);
