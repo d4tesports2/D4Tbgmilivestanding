@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -12,6 +12,9 @@
     --finished-team-bg: linear-gradient(100deg,#111827 0%,#030712 100%);
     --table-header-bg: linear-gradient(100deg,#c084fc 0%,#7c3aed 48%,#4c1d95 100%);
     --table-font-color:#ffffff;
+    --counter-bg:#1e1b4b;
+    --counter-text-color:#ffffff;
+    --counter-bar-height:34px;
     --status-bar-active:#00ff9d;
     --status-bar-finished:#ef4444;
     --top5-card-bg: linear-gradient(90deg,rgba(57, 0, 117, 1) 0%, rgba(89, 0, 153, 1) 52%, rgba(75, 0, 130, 1) 100%);
@@ -560,6 +563,40 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
     box-sizing:border-box;
 }
 
+/* ALIVE COUNTERS (ONLY ADDITION) */
+#matchCounters{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    width:100%;
+    box-sizing:border-box;
+    min-height:var(--counter-bar-height);
+    padding:4px 12px;
+    background:var(--counter-bg);
+    color:var(--counter-text-color);
+    font-weight:800;
+    border-bottom:1px solid rgba(255,255,255,0.18);
+}
+#matchCounters[data-visible="false"]{
+    display:none;
+}
+.counter-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+.counter-label{
+    font-size:10px;
+    letter-spacing:1px;
+    opacity:0.85;
+}
+.counter-value{
+    font-size:15px;
+    min-width:20px;
+    text-align:center;
+}
+
 .header{
     display:grid;
     grid-template-columns:30px 1fr 28px 25px 30px 40px;
@@ -1061,7 +1098,19 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
 <div id="tableWrapper">
 <div class="container">
 
-    <!-- ðŸ”¥ MATCH BAR -->
+    <!-- ALIVE COUNTERS -->
+    <div id="matchCounters" data-visible="true">
+        <div class="counter-item">
+            <span class="counter-label">PLAYERS</span>
+            <span class="counter-value" id="alivePlayersCount">0</span>
+        </div>
+        <div class="counter-item">
+            <span class="counter-label">TEAMS</span>
+            <span class="counter-value" id="aliveTeamsCount">0</span>
+        </div>
+    </div>
+
+    <!-- MATCH BAR -->
     <div id="matchBar">
         <span id="matchText"></span>
         <img id="mapImage" src="" alt="">
@@ -1184,6 +1233,10 @@ const defaultOverlayLayout = {
     match_text_align: "left",
     match_text_valign: "top",
     show_header: true,
+    show_match_counters: true,
+    counter_color: "#1e1b4b",
+    counter_text_color: "#ffffff",
+    counter_bar_height: 34,
     show_win_chance: true,
     table_visible: true,
     auto_hide_table_top4: false,
@@ -1276,6 +1329,9 @@ function normalizeLayout(layout){
     let matchTextAlign = String(layout.match_text_align || defaultOverlayLayout.match_text_align).toLowerCase();
     let matchTextValign = String(layout.match_text_valign || defaultOverlayLayout.match_text_valign).toLowerCase();
     let showHeader = layoutBool(layout, "show_header");
+    let showMatchCounters = layoutBool(layout, "show_match_counters");
+    let counterColor = String(layout.counter_color || defaultOverlayLayout.counter_color);
+    let counterTextColor = String(layout.counter_text_color || defaultOverlayLayout.counter_text_color);
     let showWinChance = layoutBool(layout, "show_win_chance");
     let tableVisible = layoutBool(layout, "table_visible");
     let autoHideTableTop4 = layoutBool(layout, "auto_hide_table_top4");
@@ -1409,6 +1465,9 @@ function normalizeLayout(layout){
         match_text_align: matchTextAlign,
         match_text_valign: matchTextValign,
         show_header: showHeader,
+        show_match_counters: showMatchCounters,
+        counter_color: counterColor,
+        counter_text_color: counterTextColor,
         show_win_chance: showWinChance,
         table_visible: tableVisible,
         auto_hide_table_top4: autoHideTableTop4,
@@ -1481,7 +1540,8 @@ function applyOverlayLayout(layout, aliveTeams){
     let effectiveMatchBarHeight = clean.show_header ? matchBarHeight : 0;
     let currentRowCount = Math.max(1, document.querySelectorAll("#teams .row").length || 0);
     let defaultMatchBarHeight = Math.max(46, defaultOverlayLayout.map_text_height + 7, 44);
-    let tableHeightDelta = ((clean.table_row_height - defaultOverlayLayout.table_row_height) * (currentRowCount + 1)) + (effectiveMatchBarHeight - defaultMatchBarHeight);
+    let counterBarHeight = clean.show_match_counters ? (defaultOverlayLayout.counter_bar_height || 34) : 0;
+    let tableHeightDelta = ((clean.table_row_height - defaultOverlayLayout.table_row_height) * (currentRowCount + 1)) + ((effectiveMatchBarHeight + counterBarHeight) - (defaultMatchBarHeight + (defaultOverlayLayout.counter_bar_height || 34)));
     let tableVerticalEdgeOffset = 10 - (tableHeightDelta / 2);
     table.style[clean.table_y] = tableVerticalEdgeOffset + "px";
     document.documentElement.style.setProperty("--table-width", clean.table_width + "px");
@@ -1542,6 +1602,10 @@ function applyOverlayLayout(layout, aliveTeams){
         matchBar.dataset.baseHeight = matchBarHeight;
         matchBar.style.minHeight = matchBarHeight + "px";
     }
+    document.documentElement.style.setProperty("--counter-bg", clean.counter_color || defaultOverlayLayout.counter_color);
+    document.documentElement.style.setProperty("--counter-text-color", clean.counter_text_color || defaultOverlayLayout.counter_text_color);
+    let matchCountersEl = document.getElementById("matchCounters");
+    if(matchCountersEl) matchCountersEl.dataset.visible = clean.show_match_counters ? "true" : "false";
     if(header) header.style.background = clean.header_color || defaultOverlayLayout.header_color;
     if(mapImage){
         mapImage.src = clean.map_image || defaultOverlayLayout.map_image;
@@ -1973,6 +2037,22 @@ let layout = normalizeLayout(incomingLayout || defaultOverlayLayout);
 
     // ðŸ”¥ MATCH NO UPDATE (ONLY ADDITION)
     document.getElementById("matchText").innerText = "MATCH " + (data.match_no || 1);
+
+    // ALIVE COUNTERS (ONLY ADDITION) - summed from per-team OCR alive counts
+    let matchCounters = document.getElementById("matchCounters");
+    if(matchCounters){
+        let counterPlayers = 0;
+        let counterTeams = 0;
+        (data.teams || []).forEach((t)=>{
+            let aliveVal = t.finished ? 0 : (Number(t.alive) || 0);
+            counterPlayers += aliveVal;
+            if(aliveVal > 0) counterTeams++;
+        });
+        let playersEl = document.getElementById("alivePlayersCount");
+        let teamsEl = document.getElementById("aliveTeamsCount");
+        if(playersEl) playersEl.innerText = counterPlayers;
+        if(teamsEl) teamsEl.innerText = counterTeams;
+    }
 
     let teams = (data.teams || []).sort((a,b)=>{
         if((b.total||0)!==(a.total||0)) return (b.total||0)-(a.total||0);
