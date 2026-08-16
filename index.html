@@ -2197,7 +2197,9 @@ if(popupEnabled) teams.forEach(t=>{
                 let count = parseInt(wwcdVideo.dataset.wwcdPlayCount || "0") + 1;
                 wwcdVideo.dataset.wwcdPlayCount = count;
                 if(count < 2){ wwcdVideo.play().catch(function(){}); }
-                else { wwcdVideo.style.display = "none"; wwcdImage.style.display = "block"; }
+                else { wwcdVideo.style.display = "none"; wwcdImage.style.display = "block";
+                    setTimeout(function(){ wwcdImage.style.display = "none"; wwcdOverlay.style.display = "none"; }, 10000);
+                }
             };
             wwcdVideo.style.display = "block";
             wwcdVideo.play().catch(function(){});
