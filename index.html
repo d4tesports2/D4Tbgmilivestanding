@@ -1073,6 +1073,10 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
 
 <body>
 
+<div id="wwcdOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:999999;background:#000;">
+    <video id="wwcdVideo" style="width:100%;height:100%;object-fit:cover;" muted></video>
+</div>
+
 <div class="win-chance" id="winChance"></div>
 <div class="top5" id="top5"></div>
 
@@ -2176,6 +2180,23 @@ if(popupEnabled) teams.forEach(t=>{
     }
 
     document.getElementById("top5").innerHTML = topHTML;
+
+    let wwcdOverlay = document.getElementById("wwcdOverlay");
+    let wwcdVideo = document.getElementById("wwcdVideo");
+    if(data.wwcd_video){
+        if(wwcdOverlay.style.display === "none"){
+            wwcdOverlay.style.display = "block";
+            wwcdVideo.src = IS_LOCAL_OVERLAY ? "/data/wwcd/WWCD.mp4" : "wwcd/WWCD.mp4";
+            wwcdVideo.play().catch(function(){});
+        }
+    } else {
+        if(wwcdOverlay.style.display !== "none"){
+            wwcdVideo.pause();
+            wwcdVideo.currentTime = 0;
+            wwcdOverlay.style.display = "none";
+        }
+    }
+
     document.body.classList.add("ready");
 }
 
