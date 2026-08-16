@@ -2187,12 +2187,20 @@ if(popupEnabled) teams.forEach(t=>{
         if(wwcdOverlay.style.display === "none"){
             wwcdOverlay.style.display = "block";
             wwcdVideo.src = IS_LOCAL_OVERLAY ? "/data/wwcd/WWCD.mp4" : "wwcd/WWCD.mp4";
+            wwcdVideo.loop = false;
+            wwcdVideo.dataset.wwcdPlayCount = "0";
+            wwcdVideo.onended = function(){
+                let count = parseInt(wwcdVideo.dataset.wwcdPlayCount || "0") + 1;
+                wwcdVideo.dataset.wwcdPlayCount = count;
+                if(count < 2){ wwcdVideo.play().catch(function(){}); }
+            };
             wwcdVideo.play().catch(function(){});
         }
     } else {
         if(wwcdOverlay.style.display !== "none"){
             wwcdVideo.pause();
             wwcdVideo.currentTime = 0;
+            wwcdVideo.onended = null;
             wwcdOverlay.style.display = "none";
         }
     }
