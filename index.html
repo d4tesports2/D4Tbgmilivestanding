@@ -546,6 +546,20 @@ body[data-table-font="teko"]{ --overlay-font:'Teko', sans-serif; }
 body[data-table-font="oswald"]{ --overlay-font:'Oswald', sans-serif; }
 body[data-table-font="orbitron"]{ --overlay-font:'Orbitron', sans-serif; }
 body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
+body[data-header-font="rajdhani"]{ --header-font:'Rajdhani', sans-serif; }
+body[data-header-font="teko"]{ --header-font:'Teko', sans-serif; }
+body[data-header-font="oswald"]{ --header-font:'Oswald', sans-serif; }
+body[data-header-font="orbitron"]{ --header-font:'Orbitron', sans-serif; }
+body[data-header-font="barlow"]{ --header-font:'Barlow Condensed', sans-serif; }
+body[data-header-font="story_script"]{ --header-font:'Story Script', cursive; }
+body[data-header-font="lobster"]{ --header-font:'Lobster', cursive; }
+body[data-match-font="rajdhani"]{ --match-font:'Rajdhani', sans-serif; }
+body[data-match-font="teko"]{ --match-font:'Teko', sans-serif; }
+body[data-match-font="oswald"]{ --match-font:'Oswald', sans-serif; }
+body[data-match-font="orbitron"]{ --match-font:'Orbitron', sans-serif; }
+body[data-match-font="barlow"]{ --match-font:'Barlow Condensed', sans-serif; }
+body[data-match-font="story_script"]{ --match-font:'Story Script', cursive; }
+body[data-match-font="lobster"]{ --match-font:'Lobster', cursive; }
 
 /* ðŸ”¥ MATCH BAR (ONLY ADDITION) */
 #matchBar{
@@ -606,7 +620,8 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
     display:grid;
     grid-template-columns:30px 1fr 28px 25px 30px 40px;
     background:var(--table-header-bg);
-    min-height:var(--table-row-height);
+    min-height:var(--table-header-height, var(--table-row-height));
+    font-family:var(--header-font, var(--overlay-font));
     align-items:center;
     padding:0 var(--table-row-pad-x);
     font-size:var(--table-header-font-size);
@@ -614,6 +629,7 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
 }
 
 #matchText{
+    font-family:var(--match-font, var(--overlay-font));
     flex:0 0 74px;
     min-width:74px;
     height:44px;
@@ -1237,6 +1253,9 @@ const defaultOverlayLayout = {
     top5_style: "current",
     popup_style: "current",
     table_font_style: "rajdhani",
+    table_header_height: 34,
+    header_font_style: "rajdhani",
+    match_font_style: "rajdhani",
     alive_color: "linear-gradient(100deg,#21004b 0%,#6d28d9 52%,#3b0764 100%)",
     finished_color: "linear-gradient(100deg,#111827 0%,#030712 100%)",
     header_color: "linear-gradient(100deg,#c084fc 0%,#7c3aed 48%,#4c1d95 100%)",
@@ -1340,6 +1359,9 @@ function normalizeLayout(layout){
     let top5Style = String(layout.top5_style || layout.table_style || defaultOverlayLayout.top5_style).toLowerCase();
     let popupStyle = String(layout.popup_style || layout.table_style || defaultOverlayLayout.popup_style).toLowerCase();
     let tableFontStyle = String(layout.table_font_style || defaultOverlayLayout.table_font_style).toLowerCase();
+    let headerFontStyle = String(layout.header_font_style || defaultOverlayLayout.header_font_style).toLowerCase();
+    let matchFontStyle = String(layout.match_font_style || defaultOverlayLayout.match_font_style).toLowerCase();
+    let tableHeaderHeight = parseInt(layout.table_header_height ?? defaultOverlayLayout.table_header_height, 10);
     let aliveColor = String(layout.alive_color || defaultOverlayLayout.alive_color);
     let finishedColor = String(layout.finished_color || defaultOverlayLayout.finished_color);
     let headerColor = String(layout.header_color || defaultOverlayLayout.header_color);
@@ -1396,6 +1418,8 @@ function normalizeLayout(layout){
     if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(top5Style)) top5Style = defaultOverlayLayout.top5_style;
     if(!["current", "bgmi", "neon", "compact", "glass", "curve_dark", "curve_light", "scoreboard"].includes(popupStyle)) popupStyle = defaultOverlayLayout.popup_style;
     if(!["rajdhani", "teko", "oswald", "orbitron", "barlow", "story_script", "lobster", "asset", "ewert"].includes(tableFontStyle)) tableFontStyle = defaultOverlayLayout.table_font_style;
+    if(!["rajdhani", "teko", "oswald", "orbitron", "barlow", "story_script", "lobster", "asset", "ewert"].includes(headerFontStyle)) headerFontStyle = defaultOverlayLayout.header_font_style;
+    if(!["rajdhani", "teko", "oswald", "orbitron", "barlow", "story_script", "lobster", "asset", "ewert"].includes(matchFontStyle)) matchFontStyle = defaultOverlayLayout.match_font_style;
     if(!["all", "split"].includes(dataColorMode)) dataColorMode = defaultOverlayLayout.data_color_mode;
     if(Number.isNaN(offsetX)) offsetX = defaultOverlayLayout.offset_x;
     if(Number.isNaN(offsetY)) offsetY = defaultOverlayLayout.offset_y;
@@ -1491,6 +1515,9 @@ function normalizeLayout(layout){
         top5_style: top5Style,
         popup_style: popupStyle,
         table_font_style: tableFontStyle,
+        header_font_style: headerFontStyle,
+        match_font_style: matchFontStyle,
+        table_header_height: tableHeaderHeight,
         alive_color: aliveColor,
         finished_color: finishedColor,
         header_color: headerColor,
@@ -1654,6 +1681,9 @@ function applyOverlayLayout(layout, aliveTeams){
     document.documentElement.style.setProperty("--style-accent-color", clean.style_color || defaultOverlayLayout.style_color);
     document.documentElement.style.setProperty("--style-accent-soft", `color-mix(in srgb, ${clean.style_color || defaultOverlayLayout.style_color} 18%, transparent)`);
     document.body.dataset.tableFont = clean.table_font_style;
+    document.body.dataset.headerFont = clean.header_font_style;
+    document.body.dataset.matchFont = clean.match_font_style;
+    document.documentElement.style.setProperty("--table-header-height", clean.table_header_height + "px");
     if(matchBar){
         matchBar.style.display = clean.show_header ? "flex" : "none";
         matchBar.style.background = clean.header_color || defaultOverlayLayout.header_color;
