@@ -141,6 +141,11 @@ body.ready{
     gap:12px;
 }
 
+.top5[data-top5-orientation="vertical"]{
+    flex-direction:column;
+    gap:10px;
+}
+
 .top-card{
     display:flex;
     align-items:center;
@@ -1178,6 +1183,7 @@ const defaultOverlayLayout = {
     table_y: "bottom",
     top5_x: "center",
     top5_y: "top",
+    top5_orientation: "horizontal",
     offset_x: 0,
     offset_y: 0,
     top5_offset_x: 0,
@@ -1280,6 +1286,7 @@ function normalizeLayout(layout){
     let tableY = String(layout.table_y || defaultOverlayLayout.table_y).toLowerCase();
     let top5X = String(layout.top5_x || defaultOverlayLayout.top5_x).toLowerCase();
     let top5Y = String(layout.top5_y || defaultOverlayLayout.top5_y).toLowerCase();
+    let top5Orientation = String(layout.top5_orientation || defaultOverlayLayout.top5_orientation).toLowerCase();
     let offsetX = parseInt(layout.offset_x || defaultOverlayLayout.offset_x, 10);
     let offsetY = parseInt(layout.offset_y || defaultOverlayLayout.offset_y, 10);
     let top5OffsetX = parseInt(layout.top5_offset_x || defaultOverlayLayout.top5_offset_x, 10);
@@ -1354,6 +1361,7 @@ function normalizeLayout(layout){
     if(!["top", "bottom"].includes(tableY)) tableY = defaultOverlayLayout.table_y;
     if(!["left", "center", "right"].includes(top5X)) top5X = defaultOverlayLayout.top5_x;
     if(!["top", "bottom"].includes(top5Y)) top5Y = defaultOverlayLayout.top5_y;
+    if(!["horizontal", "vertical"].includes(top5Orientation)) top5Orientation = defaultOverlayLayout.top5_orientation;
     if(!["slide", "smooth", "pop", "slide_io", "fade_io", "none"].includes(animationStyle)) animationStyle = defaultOverlayLayout.animation_style;
     if(!["slide", "smooth", "pop", "slide_io", "fade_io", "none"].includes(top5AnimationStyle)) top5AnimationStyle = defaultOverlayLayout.top5_animation_style;
     if(!["slide", "smooth", "pop", "slide_io", "fade_io", "none"].includes(popupAnimationStyle)) popupAnimationStyle = defaultOverlayLayout.popup_animation_style;
@@ -1414,8 +1422,9 @@ function normalizeLayout(layout){
     return {
         table_x: tableX,
         table_y: tableY,
-        top5_x: top5X,
-        top5_y: top5Y,
+    top5_x: top5X,
+    top5_y: top5Y,
+    top5_orientation: top5Orientation,
         offset_x: offsetX,
         offset_y: offsetY,
         top5_offset_x: top5OffsetX,
@@ -1650,6 +1659,7 @@ function applyOverlayLayout(layout, aliveTeams){
     table.dataset.dataColorMode = clean.data_color_mode;
     top5.dataset.top5Animation = clean.top5_animation_style;
     top5.dataset.top5Style = clean.top5_style;
+    top5.dataset.top5Orientation = clean.top5_orientation;
     if(finishBanner){
         finishBanner.dataset.popupStyle = clean.popup_style;
         finishBanner.dataset.popupAnimation = clean.popup_animation_style;
