@@ -69,8 +69,8 @@ body.ready{
 
 .win-chance{
     position:absolute;
-    top:52px;
-    left:50%;
+    top:calc(52px + var(--win-chance-offset-y, 0px));
+    left:calc(50% + var(--win-chance-offset-x, 0px));
     transform:translateX(-50%);
     display:flex;
     gap:28px;
@@ -307,8 +307,8 @@ body.ready{
 /* ================= PREMIUM POPUP ================= */
 #finishBanner{
     position:absolute;
-    top:180px;
-    left:50%;
+    top:calc(180px + var(--popup-offset-y, 0px));
+    left:calc(50% + var(--popup-offset-x, 0px));
     transform:translateX(-50%) scale(var(--popup-scale-hidden));
 
     display:flex;
@@ -1184,6 +1184,10 @@ const defaultOverlayLayout = {
     top5_x: "center",
     top5_y: "top",
     top5_orientation: "horizontal",
+    win_chance_offset_x: 0,
+    win_chance_offset_y: 0,
+    popup_offset_x: 0,
+    popup_offset_y: 0,
     offset_x: 0,
     offset_y: 0,
     top5_offset_x: 0,
@@ -1291,6 +1295,10 @@ function normalizeLayout(layout){
     let offsetY = parseInt(layout.offset_y || defaultOverlayLayout.offset_y, 10);
     let top5OffsetX = parseInt(layout.top5_offset_x || defaultOverlayLayout.top5_offset_x, 10);
     let top5OffsetY = parseInt(layout.top5_offset_y || defaultOverlayLayout.top5_offset_y, 10);
+    let winChanceOffsetX = parseInt(layout.win_chance_offset_x || defaultOverlayLayout.win_chance_offset_x, 10);
+    let winChanceOffsetY = parseInt(layout.win_chance_offset_y || defaultOverlayLayout.win_chance_offset_y, 10);
+    let popupOffsetX = parseInt(layout.popup_offset_x || defaultOverlayLayout.popup_offset_x, 10);
+    let popupOffsetY = parseInt(layout.popup_offset_y || defaultOverlayLayout.popup_offset_y, 10);
     let tableWidth = parseInt(layout.table_width || defaultOverlayLayout.table_width, 10);
     let tableRowHeight = parseInt(layout.table_row_height || defaultOverlayLayout.table_row_height, 10);
     let tableTextSize = parseInt(layout.table_text_size || defaultOverlayLayout.table_text_size, 10);
@@ -1374,6 +1382,10 @@ function normalizeLayout(layout){
     if(Number.isNaN(offsetY)) offsetY = defaultOverlayLayout.offset_y;
     if(Number.isNaN(top5OffsetX)) top5OffsetX = defaultOverlayLayout.top5_offset_x;
     if(Number.isNaN(top5OffsetY)) top5OffsetY = defaultOverlayLayout.top5_offset_y;
+    if(Number.isNaN(winChanceOffsetX)) winChanceOffsetX = defaultOverlayLayout.win_chance_offset_x;
+    if(Number.isNaN(winChanceOffsetY)) winChanceOffsetY = defaultOverlayLayout.win_chance_offset_y;
+    if(Number.isNaN(popupOffsetX)) popupOffsetX = defaultOverlayLayout.popup_offset_x;
+    if(Number.isNaN(popupOffsetY)) popupOffsetY = defaultOverlayLayout.popup_offset_y;
     if(Number.isNaN(tableWidth)) tableWidth = defaultOverlayLayout.table_width;
     if(Number.isNaN(tableRowHeight)) tableRowHeight = defaultOverlayLayout.table_row_height;
     if(Number.isNaN(tableTextSize)) tableTextSize = defaultOverlayLayout.table_text_size;
@@ -1429,6 +1441,10 @@ function normalizeLayout(layout){
         offset_y: offsetY,
         top5_offset_x: top5OffsetX,
         top5_offset_y: top5OffsetY,
+        win_chance_offset_x: winChanceOffsetX,
+        win_chance_offset_y: winChanceOffsetY,
+        popup_offset_x: popupOffsetX,
+        popup_offset_y: popupOffsetY,
         table_width: tableWidth,
         table_row_height: tableRowHeight,
         table_text_size: tableTextSize,
@@ -1593,6 +1609,10 @@ function applyOverlayLayout(layout, aliveTeams){
     }
 
     document.documentElement.style.setProperty("--alive-team-bg", clean.alive_color || defaultOverlayLayout.alive_color);
+    document.documentElement.style.setProperty("--win-chance-offset-x", clean.win_chance_offset_x + "px");
+    document.documentElement.style.setProperty("--win-chance-offset-y", clean.win_chance_offset_y + "px");
+    document.documentElement.style.setProperty("--popup-offset-x", clean.popup_offset_x + "px");
+    document.documentElement.style.setProperty("--popup-offset-y", clean.popup_offset_y + "px");
     document.documentElement.style.setProperty("--finished-team-bg", clean.finished_color || defaultOverlayLayout.finished_color);
     document.documentElement.style.setProperty("--table-header-bg", clean.header_color || defaultOverlayLayout.header_color);
     document.documentElement.style.setProperty("--table-font-color", clean.font_color || defaultOverlayLayout.font_color);
