@@ -1211,6 +1211,12 @@ const defaultOverlayLayout = {
     table_col_kills_width: 30,
     table_col_total_width: 32,
     table_col_status_width: 45,
+    table_col_rank_align: "left",
+    table_col_team_align: "left",
+    table_col_chicken_align: "center",
+    table_col_kills_align: "center",
+    table_col_total_align: "center",
+    table_col_status_align: "right",
     debug_overlay_layout: false,
     top5_scale: 100,
     popup_scale: 100,
@@ -1266,12 +1272,12 @@ const defaultOverlayLayout = {
 };
 
 const tableColumns = [
-    { field: "show_rank", col: "rank", widthKey: "table_col_rank_width" },
-    { field: "show_team", col: "team", widthKey: "table_col_team_width" },
-    { field: "show_chicken", col: "chicken", widthKey: "table_col_chicken_width" },
-    { field: "show_kills", col: "kills", widthKey: "table_col_kills_width" },
-    { field: "show_total", col: "total", widthKey: "table_col_total_width" },
-    { field: "show_status", col: "status", widthKey: "table_col_status_width" }
+    { field: "show_rank", col: "rank", widthKey: "table_col_rank_width", alignKey: "table_col_rank_align" },
+    { field: "show_team", col: "team", widthKey: "table_col_team_width", alignKey: "table_col_team_align" },
+    { field: "show_chicken", col: "chicken", widthKey: "table_col_chicken_width", alignKey: "table_col_chicken_align" },
+    { field: "show_kills", col: "kills", widthKey: "table_col_kills_width", alignKey: "table_col_kills_align" },
+    { field: "show_total", col: "total", widthKey: "table_col_total_width", alignKey: "table_col_total_align" },
+    { field: "show_status", col: "status", widthKey: "table_col_status_width", alignKey: "table_col_status_align" }
 ];
 
 function layoutBool(layout, key){
@@ -1313,6 +1319,7 @@ function normalizeLayout(layout){
     let rowBorderThickness = parseInt(layout.row_border_thickness ?? defaultOverlayLayout.row_border_thickness, 10);
     let rowDividerWidth = parseInt(layout.row_divider_width ?? defaultOverlayLayout.row_divider_width, 10);
     let columnWidths = Object.fromEntries(tableColumns.map(column => [column.widthKey, parseInt(layout[column.widthKey] ?? defaultOverlayLayout[column.widthKey], 10)]));
+    let columnAligns = Object.fromEntries(tableColumns.map(column => [column.alignKey, String(layout[column.alignKey] ?? defaultOverlayLayout[column.alignKey]).toLowerCase()]));
     let top5Scale = parseInt(layout.top5_scale || defaultOverlayLayout.top5_scale, 10);
     let popupScale = parseInt(layout.popup_scale || defaultOverlayLayout.popup_scale, 10);
     let animationStyle = String(layout.animation_style || defaultOverlayLayout.animation_style).toLowerCase();
@@ -1421,6 +1428,9 @@ function normalizeLayout(layout){
         if(Number.isNaN(columnWidths[key])) columnWidths[key] = defaultOverlayLayout[key];
         columnWidths[key] = Math.max(12, Math.min(420, columnWidths[key]));
     });
+    Object.keys(columnAligns).forEach(key => {
+        if(!["left", "center", "right"].includes(columnAligns[key])) columnAligns[key] = defaultOverlayLayout[key];
+    });
     top5Scale = Math.max(50, Math.min(180, top5Scale));
     popupScale = Math.max(50, Math.min(180, popupScale));
     mapTextSize = Math.max(8, Math.min(64, mapTextSize));
@@ -1459,6 +1469,7 @@ function normalizeLayout(layout){
         row_border_thickness: rowBorderThickness,
         row_divider_width: rowDividerWidth,
         ...columnWidths,
+        ...columnAligns,
         top5_scale: top5Scale,
         popup_scale: popupScale,
         animation_style: animationStyle,
@@ -1704,6 +1715,11 @@ function applyTableColumns(layout){
         document.querySelectorAll(`[data-col="${column.col}"]`).forEach(el=>{
             el.style.display = display;
         });
+        let headerAlign = String(layout[column.alignKey] || defaultOverlayLayout[column.alignKey] || "").toLowerCase();
+        if(!["left", "center", "right"].includes(headerAlign)) headerAlign = defaultOverlayLayout[column.alignKey];
+        document.querySelectorAll(`.header [data-col="${column.col}"]`).forEach(el=>{
+            el.style.textAlign = headerAlign;
+        });
     });
 }
 
@@ -1765,7 +1781,12 @@ applyTableColumns = function(layout){
     const gridTemplate = visibleColumns.map(column => `${layout[column.widthKey]}px`).join(" ");
     document.querySelector(".header").style.gridTemplateColumns = gridTemplate;
     document.querySelectorAll(".row").forEach(row => row.style.gridTemplateColumns = gridTemplate);
-    tableColumns.forEach(column => document.querySelectorAll(`[data-col="${column.col}"]`).forEach(element => element.style.display = visibleColumns.includes(column) ? "" : "none"));
+    tableColumns.forEach(column => {
+        document.querySelectorAll(`[data-col="${column.col}"]`).forEach(element => element.style.display = visibleColumns.includes(column) ? "" : "none");
+        let headerAlign = String(layout[column.alignKey] || defaultOverlayLayout[column.alignKey] || "").toLowerCase();
+        if(!["left", "center", "right"].includes(headerAlign)) headerAlign = defaultOverlayLayout[column.alignKey];
+        document.querySelectorAll(`.header [data-col="${column.col}"]`).forEach(element => element.style.textAlign = headerAlign);
+    });
 };
 
 function rowKey(team){
