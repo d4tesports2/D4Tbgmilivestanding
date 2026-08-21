@@ -709,6 +709,8 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
 .header [data-col]{cursor:move;}
 .header [data-col].d4t-header-selected{outline:2px dashed #ffd400;outline-offset:-2px;}
 #d4tNudgeHint{position:fixed;right:8px;bottom:8px;z-index:99999;background:rgba(0,0,0,.78);color:#ffd400;font:12px/1.5 monospace;padding:6px 10px;border-radius:6px;pointer-events:none;display:none;white-space:pre;}
+.row [data-col="logo"]{display:flex;align-items:center;justify-content:center;}
+.header [data-col="logo"]{font-size:.72em;opacity:.85;}
 
 .chicken-head{
     font-size:15px;
@@ -1134,6 +1136,7 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
 
     <div class="header">
         <div data-col="rank">#</div>
+        <div data-col="logo">LOGO</div>
         <div data-col="team">TEAM</div>
         <div data-col="chicken" class="chicken-head">&#128020;</div>
         <div data-col="kills">FIN</div>
@@ -1222,6 +1225,8 @@ const defaultOverlayLayout = {
     table_col_kills_align: "center",
     table_col_total_align: "center",
     table_col_status_align: "right",
+    table_col_logo_width: 34,
+    show_logo: true,
     debug_overlay_layout: false,
     top5_scale: 100,
     popup_scale: 100,
@@ -1278,6 +1283,7 @@ const defaultOverlayLayout = {
 
 const tableColumns = [
     { field: "show_rank", col: "rank", widthKey: "table_col_rank_width", alignKey: "table_col_rank_align" },
+    { field: "show_logo", col: "logo", widthKey: "table_col_logo_width" },
     { field: "show_team", col: "team", widthKey: "table_col_team_width", alignKey: "table_col_team_align" },
     { field: "show_chicken", col: "chicken", widthKey: "table_col_chicken_width", alignKey: "table_col_chicken_align" },
     { field: "show_kills", col: "kills", widthKey: "table_col_kills_width", alignKey: "table_col_kills_align" },
@@ -1815,18 +1821,30 @@ applyTableColumns = function(layout){
     }
     function nudgeShowHint(){
         const el = nudgeEnsureHint();
-        const off = nudgeOffsets[nudgeSelected] || {x:0, y:0};
+        const l = nudgeOffsets[nudgeSelected] || {x:0, y:0};
+        const src = nudgeCleanLayout || {};
+        const off = {
+            x: (parseInt(src["table_col_" + nudgeSelected + "_dx"] ?? 0, 10) || 0) + (l.x||0),
+            y: (parseInt(src["table_col_" + nudgeSelected + "_dy"] ?? 0, 10) || 0) + (l.y||0)
+        };
         el.style.display = "block";
         el.textContent = "[" + nudgeSelected.toUpperCase() + "] arrows=move | shift=x10 | del=reset | esc=done (" + off.x + "," + off.y + ")";
     }
     function nudgeHideHint(){
         if(nudgeHint) nudgeHint.style.display = "none";
     }
+    let nudgeCleanLayout = null;
     function nudgeApply(col){
-        const off = nudgeOffsets[col] || {x:0, y:0};
-        document.querySelectorAll(`.header [data-col="${col}"]`).forEach(el=>{
-            el.style.transform = `translate(${off.x}px, ${off.y}px)`;
-            el.classList.toggle("d4t-header-selected", nudgeSelected === col);
+        const cols = ["rank", "team", "logo", "chicken", "kills", "total", "status"];
+        cols.forEach(c=>{
+            const src = nudgeCleanLayout || {};
+            const jx = parseInt(src["table_col_" + c + "_dx"] ?? 0, 10) || 0;
+            const jy = parseInt(src["table_col_" + c + "_dy"] ?? 0, 10) || 0;
+            const l = nudgeOffsets[c] || {x:0, y:0};
+            document.querySelectorAll(`.header [data-col="${c}"]`).forEach(el=>{
+                el.style.transform = `translate(${jx + (l.x||0)}px, ${jy + (l.y||0)}px)`;
+                el.classList.toggle("d4t-header-selected", nudgeSelected === c);
+            });
         });
     }
     function nudgeSave(){
@@ -1889,10 +1907,11 @@ applyTableColumns = function(layout){
     const d4tApplyTableColumnsBase = applyTableColumns;
     applyTableColumns = function(layout){
         const result = d4tApplyTableColumnsBase(layout);
-        Object.keys(nudgeOffsets).forEach(nudgeApply);
+        nudgeCleanLayout = layout || {};
+        nudgeApply();
         return result;
     };
-    Object.keys(nudgeOffsets).forEach(nudgeApply);
+    nudgeApply();
 })();
 
 function rowKey(team){
@@ -2233,8 +2252,8 @@ let layout = normalizeLayout(incomingLayout || defaultOverlayLayout);
         html+=`
         <div class="row ${t.finished ? 'finished' : 'alive'}" id="team-${key}" data-team-key="${key}">
             <div data-col="rank">${i+1}</div>
+            <div data-col="logo">${logoImgTag("logo", t, teamLogos)}</div>
             <div data-col="team" class="team">
-                ${logoImgTag("logo", t, teamLogos)}
                 ${t.team}
             </div>
             <div data-col="chicken">${t.chicken||0}</div>
