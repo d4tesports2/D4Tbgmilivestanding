@@ -705,6 +705,11 @@ body[data-table-font="barlow"]{ --overlay-font:'Barlow Condensed', sans-serif; }
     text-align:right;
 }
 
+/* HEADER NUDGE (click title -> arrow keys move it) */
+.header [data-col]{cursor:move;}
+.header [data-col].d4t-header-selected{outline:2px dashed #ffd400;outline-offset:-2px;}
+#d4tNudgeHint{position:fixed;right:8px;bottom:8px;z-index:99999;background:rgba(0,0,0,.78);color:#ffd400;font:12px/1.5 monospace;padding:6px 10px;border-radius:6px;pointer-events:none;display:none;white-space:pre;}
+
 .chicken-head{
     font-size:15px;
     line-height:1;
@@ -1788,6 +1793,107 @@ applyTableColumns = function(layout){
         document.querySelectorAll(`.header [data-col="${column.col}"]`).forEach(element => element.style.textAlign = headerAlign);
     });
 };
+
+/* ===== HEADER COLUMN NUDGE (click title -> arrow keys move it) ===== */
+(function(){
+    const NUDGE_KEY = "d4t_header_col_offsets";
+    let nudgeSelected = null;
+    let nudgeOffsets = {};
+    let nudgeHint = null;
+    try{
+        nudgeOffsets = JSON.parse(localStorage.getItem(NUDGE_KEY) || "{}") || {};
+    }catch(err){
+        nudgeOffsets = {};
+    }
+
+    function nudgeEnsureHint(){
+        if(nudgeHint) return nudgeHint;
+        nudgeHint = document.createElement("div");
+        nudgeHint.id = "d4tNudgeHint";
+        document.body.appendChild(nudgeHint);
+        return nudgeHint;
+    }
+    function nudgeShowHint(){
+        const el = nudgeEnsureHint();
+        const off = nudgeOffsets[nudgeSelected] || {x:0, y:0};
+        el.style.display = "block";
+        el.textContent = "[" + nudgeSelected.toUpperCase() + "] arrows=move | shift=x10 | del=reset | esc=done (" + off.x + "," + off.y + ")";
+    }
+    function nudgeHideHint(){
+        if(nudgeHint) nudgeHint.style.display = "none";
+    }
+    function nudgeApply(col){
+        const off = nudgeOffsets[col] || {x:0, y:0};
+        document.querySelectorAll(`.header [data-col="${col}"]`).forEach(el=>{
+            el.style.transform = `translate(${off.x}px, ${off.y}px)`;
+            el.classList.toggle("d4t-header-selected", nudgeSelected === col);
+        });
+    }
+    function nudgeSave(){
+        try{ localStorage.setItem(NUDGE_KEY, JSON.stringify(nudgeOffsets)); }catch(err){}
+    }
+    function nudgeDeselect(){
+        if(!nudgeSelected) return;
+        const col = nudgeSelected;
+        nudgeSelected = null;
+        document.querySelectorAll(`.header [data-col="${col}"]`).forEach(el=>el.classList.remove("d4t-header-selected"));
+        nudgeHideHint();
+    }
+
+    document.addEventListener("click", ev=>{
+        const cell = ev.target.closest(".header [data-col]");
+        if(cell){
+            const col = cell.getAttribute("data-col");
+            if(nudgeSelected && nudgeSelected !== col){
+                document.querySelectorAll(`.header [data-col="${nudgeSelected}"]`).forEach(el=>el.classList.remove("d4t-header-selected"));
+            }
+            nudgeSelected = col;
+            nudgeApply(col);
+            nudgeShowHint();
+        }
+    });
+
+    document.addEventListener("keydown", ev=>{
+        if(!nudgeSelected) return;
+        if(ev.key === "Escape"){
+            nudgeDeselect();
+            return;
+        }
+        if(ev.key === "Delete" || ev.key === "Backspace"){
+            ev.preventDefault();
+            nudgeOffsets[nudgeSelected] = {x:0, y:0};
+            nudgeApply(nudgeSelected);
+            nudgeSave();
+            nudgeShowHint();
+            return;
+        }
+        const step = ev.shiftKey ? 10 : 1;
+        const moves = {
+            ArrowLeft: [-step, 0],
+            ArrowRight: [step, 0],
+            ArrowUp: [0, -step],
+            ArrowDown: [0, step]
+        };
+        const move = moves[ev.key];
+        if(!move) return;
+        ev.preventDefault();
+        const cur = nudgeOffsets[nudgeSelected] || {x:0, y:0};
+        cur.x += move[0];
+        cur.y += move[1];
+        nudgeOffsets[nudgeSelected] = cur;
+        nudgeApply(nudgeSelected);
+        nudgeSave();
+        nudgeShowHint();
+    });
+
+    const d4tApplyTableColumnsBase = applyTableColumns;
+    applyTableColumns = function(layout){
+        const result = d4tApplyTableColumnsBase(layout);
+        Object.keys(nudgeOffsets).forEach(nudgeApply);
+        return result;
+    };
+    Object.keys(nudgeOffsets).forEach(nudgeApply);
+})();
 
 function rowKey(team){
     return String(team || "").replace(/[^a-zA-Z0-9_-]/g, "_");
