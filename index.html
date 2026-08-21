@@ -1710,7 +1710,7 @@ function applyOverlayLayout(layout, aliveTeams){
 }
 
 function applyTableColumns(layout){
-    let visibleColumns = tableColumns.filter(column => layout[column.field]);
+    let visibleColumns = tableColumns.filter(column => layoutBool(layout, column.field));
     if(visibleColumns.length === 0){
         visibleColumns = tableColumns;
     }
@@ -1787,7 +1787,7 @@ applyOverlayLayout = function(layout, aliveTeams){
     return clean;
 };
 applyTableColumns = function(layout){
-    let visibleColumns = tableColumns.filter(column => layout[column.field]);
+    let visibleColumns = tableColumns.filter(column => layoutBool(layout, column.field));
     if(!visibleColumns.length) visibleColumns = tableColumns;
     const gridTemplate = visibleColumns.map(column => `${layout[column.widthKey]}px`).join(" ");
     document.querySelector(".header").style.gridTemplateColumns = gridTemplate;
